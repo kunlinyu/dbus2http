@@ -1,0 +1,4 @@
+.clang-format
+.idea
+build/
+conan_provider.cmake
