@@ -4,7 +4,7 @@
 #include <vector>
 #include "argument.h"
 
-namespace entity {
+namespace dbus2http {
 
 struct Method {
   std::string name;
@@ -16,4 +16,4 @@ struct Method {
   void add(const Argument& arg) { args.push_back(arg); }
 };
 
-}  // namespace entity
+}  // namespace dbus2http

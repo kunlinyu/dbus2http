@@ -6,7 +6,7 @@
 #include "signal.h"
 #include "property.h"
 
-namespace entity {
+namespace dbus2http {
 
 struct Interface {
   std::string name;
@@ -22,4 +22,4 @@ struct Interface {
   void add(const Property& p) { properties.push_back(p); }
 };
 
-}  // namespace entity
+}  // namespace dbus2http

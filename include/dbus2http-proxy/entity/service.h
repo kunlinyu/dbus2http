@@ -4,7 +4,7 @@
 #include <map>
 #include "object_path.h"
 
-namespace entity {
+namespace dbus2http {
 
 struct Service {
   std::string name;
@@ -16,4 +16,4 @@ struct Service {
   void add(const ObjectPath& op) { object_paths[op.path] = op; }
 };
 
-}  // namespace entity
+}  // namespace dbus2http

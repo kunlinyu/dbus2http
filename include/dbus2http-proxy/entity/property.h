@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace entity {
+namespace dbus2http {
 
 struct Property {
   std::string name;
@@ -15,4 +15,4 @@ struct Property {
       : name(name), type(type), access(access) {}
 };
 
-}  // namespace entity
+}  // namespace dbus2http

@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
+#include <nlohmann/json.hpp>
 
-namespace entity {
+namespace dbus2http {
 
 struct Argument {
   std::string name;
@@ -15,4 +16,4 @@ struct Argument {
       : name(name), type(type), direction(direction) {}
 };
 
-}  // namespace entity
+}  // namespace dbus2http

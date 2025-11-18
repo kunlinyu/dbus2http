@@ -16,7 +16,7 @@ class DbusEnumerator {
 
   static std::vector<std::string> list_services() ;
 
-  static std::string introspect_service(const std::string& service_name) ;
+  static std::string introspect_service(const std::string& service_name, const std::string& path) ;
 };
 
 }  // namespace dbus2http

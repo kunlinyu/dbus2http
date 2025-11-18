@@ -1,0 +1,2924 @@
+{
+  "com.redhat.NewPrinterNotification": {
+    "/": {
+      "interfaces": []
+    },
+    "/com": {
+      "interfaces": []
+    },
+    "/comredhat": {
+      "interfaces": []
+    }
+  },
+  "com.redhat.PrinterDriversInstaller": {
+    "/": {
+      "interfaces": []
+    },
+    "/com": {
+      "interfaces": []
+    },
+    "/comredhat": {
+      "interfaces": []
+    }
+  },
+  "fi.w1.wpa_supplicant1": {
+    "": {
+      "interfaces": []
+    }
+  },
+  "net.hadess.PowerProfiles": {
+    "/": {
+      "interfaces": []
+    },
+    "/net": {
+      "interfaces": []
+    },
+    "/nethadess": {
+      "interfaces": []
+    }
+  },
+  "net.hadess.SwitcherooControl": {
+    "/": {
+      "interfaces": []
+    },
+    "/net": {
+      "interfaces": []
+    },
+    "/nethadess": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.Accounts": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.Avahi": {
+    "": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.ColorManager": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.DBus": {
+    "/": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "Hello"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "u"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "RequestName"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "ReleaseName"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "u"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "StartServiceByName"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "a{ss}"
+                }
+              ],
+              "name": "UpdateActivationEnvironment"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "b"
+                }
+              ],
+              "name": "NameHasOwner"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "as"
+                }
+              ],
+              "name": "ListNames"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "as"
+                }
+              ],
+              "name": "ListActivatableNames"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "AddMatch"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "RemoveMatch"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetNameOwner"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "as"
+                }
+              ],
+              "name": "ListQueuedOwners"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "GetConnectionUnixUser"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "GetConnectionUnixProcessID"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "ay"
+                }
+              ],
+              "name": "GetAdtAuditSessionData"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "ay"
+                }
+              ],
+              "name": "GetConnectionSELinuxSecurityContext"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetConnectionAppArmorSecurityContext"
+            },
+            {
+              "args": [],
+              "name": "ReloadConfig"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetId"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetConnectionCredentials"
+            }
+          ],
+          "name": "org.freedesktop.DBus",
+          "properties": [
+            {
+              "access": "read",
+              "name": "Features",
+              "type": "as"
+            },
+            {
+              "access": "read",
+              "name": "Interfaces",
+              "type": "as"
+            }
+          ],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "NameOwnerChanged"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "NameLost"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "NameAcquired"
+            }
+          ]
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            },
+            {
+              "args": [],
+              "name": "Ping"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        }
+      ]
+    },
+    "/org/freedesktop/DBus": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "Hello"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "u"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "RequestName"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "ReleaseName"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "u"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "StartServiceByName"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "a{ss}"
+                }
+              ],
+              "name": "UpdateActivationEnvironment"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "b"
+                }
+              ],
+              "name": "NameHasOwner"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "as"
+                }
+              ],
+              "name": "ListNames"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "as"
+                }
+              ],
+              "name": "ListActivatableNames"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "AddMatch"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "RemoveMatch"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetNameOwner"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "as"
+                }
+              ],
+              "name": "ListQueuedOwners"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "GetConnectionUnixUser"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "GetConnectionUnixProcessID"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "ay"
+                }
+              ],
+              "name": "GetAdtAuditSessionData"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "ay"
+                }
+              ],
+              "name": "GetConnectionSELinuxSecurityContext"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetConnectionAppArmorSecurityContext"
+            },
+            {
+              "args": [],
+              "name": "ReloadConfig"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetId"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetConnectionCredentials"
+            }
+          ],
+          "name": "org.freedesktop.DBus",
+          "properties": [
+            {
+              "access": "read",
+              "name": "Features",
+              "type": "as"
+            },
+            {
+              "access": "read",
+              "name": "Interfaces",
+              "type": "as"
+            }
+          ],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "NameOwnerChanged"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "NameLost"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "NameAcquired"
+            }
+          ]
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "as"
+                },
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "u"
+                }
+              ],
+              "name": "BecomeMonitor"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Monitoring",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetStats"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetConnectionStats"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "a{sas}"
+                }
+              ],
+              "name": "GetAllMatchRules"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Debug.Stats",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            },
+            {
+              "args": [],
+              "name": "Ping"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        }
+      ]
+    }
+  },
+  "org.freedesktop.ModemManager1": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.NetworkManager": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.PackageKit": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.PolicyKit1": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.RealtimeKit1": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.UDisks2": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.UPower": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orgfreedesktop": {
+      "interfaces": []
+    }
+  },
+  "org.freedesktop.fwupd": {
+    "/": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "properties",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "devices",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetDevices"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "plugins",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetPlugins"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "device_id",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "releases",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetReleases"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "device_id",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "releases",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetDowngrades"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "device_id",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "releases",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetUpgrades"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "handle",
+                  "type": "h"
+                },
+                {
+                  "direction": "out",
+                  "name": "results",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetDetails"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "devices",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetHistory"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "attrs",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetHostSecurityAttrs"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "limit",
+                  "type": "u"
+                },
+                {
+                  "direction": "out",
+                  "name": "attrs",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetHostSecurityEvents"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "attrs",
+                  "type": "a{ss}"
+                }
+              ],
+              "name": "GetReportMetadata"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "hints",
+                  "type": "a{ss}"
+                }
+              ],
+              "name": "SetHints"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "id",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "handle",
+                  "type": "h"
+                },
+                {
+                  "direction": "in",
+                  "name": "options",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "Install"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "id",
+                  "type": "s"
+                }
+              ],
+              "name": "Verify"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "id",
+                  "type": "s"
+                }
+              ],
+              "name": "VerifyUpdate"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "id",
+                  "type": "s"
+                }
+              ],
+              "name": "Unlock"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "id",
+                  "type": "s"
+                }
+              ],
+              "name": "Activate"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "id",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "results",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetResults"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "results",
+                  "type": "aa{sv}"
+                }
+              ],
+              "name": "GetRemotes"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "checksums",
+                  "type": "as"
+                }
+              ],
+              "name": "GetApprovedFirmware"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "checksums",
+                  "type": "as"
+                }
+              ],
+              "name": "SetApprovedFirmware"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "checksums",
+                  "type": "as"
+                }
+              ],
+              "name": "GetBlockedFirmware"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "checksums",
+                  "type": "as"
+                }
+              ],
+              "name": "SetBlockedFirmware"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "feature_flags",
+                  "type": "t"
+                }
+              ],
+              "name": "SetFeatureFlags"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "id",
+                  "type": "s"
+                }
+              ],
+              "name": "ClearResults"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "device_id",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "key",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "s"
+                }
+              ],
+              "name": "ModifyDevice"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "key",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "s"
+                }
+              ],
+              "name": "ModifyConfig"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "remote_id",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "data",
+                  "type": "h"
+                },
+                {
+                  "direction": "in",
+                  "name": "signature",
+                  "type": "h"
+                }
+              ],
+              "name": "UpdateMetadata"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "remote_id",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "key",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "s"
+                }
+              ],
+              "name": "ModifyRemote"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "data",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "options",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "out",
+                  "name": "sig",
+                  "type": "s"
+                }
+              ],
+              "name": "SelfSign"
+            },
+            {
+              "args": [],
+              "name": "Quit"
+            }
+          ],
+          "name": "org.freedesktop.fwupd",
+          "properties": [
+            {
+              "access": "read",
+              "name": "DaemonVersion",
+              "type": "s"
+            },
+            {
+              "access": "read",
+              "name": "HostBkc",
+              "type": "s"
+            },
+            {
+              "access": "read",
+              "name": "HostProduct",
+              "type": "s"
+            },
+            {
+              "access": "read",
+              "name": "HostMachineId",
+              "type": "s"
+            },
+            {
+              "access": "read",
+              "name": "HostSecurityId",
+              "type": "s"
+            },
+            {
+              "access": "read",
+              "name": "Tainted",
+              "type": "b"
+            },
+            {
+              "access": "read",
+              "name": "Interactive",
+              "type": "b"
+            },
+            {
+              "access": "read",
+              "name": "Status",
+              "type": "u"
+            },
+            {
+              "access": "read",
+              "name": "Percentage",
+              "type": "u"
+            }
+          ],
+          "signals": [
+            {
+              "args": [],
+              "name": "Changed"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "device",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "DeviceAdded"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "device",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "DeviceRemoved"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "device",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "DeviceChanged"
+            },
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "request",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "DeviceRequest"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "org.freedesktop.login1": {
+    "": {
+      "interfaces": []
+    },
+    "/": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    },
+    "/org": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "org.freedesktop.oom1": {
+    "": {
+      "interfaces": []
+    },
+    "/": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    },
+    "/org": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "org.freedesktop.resolve1": {
+    "": {
+      "interfaces": []
+    },
+    "/": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    },
+    "/org": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "org.freedesktop.systemd1": {
+    "": {
+      "interfaces": []
+    },
+    "/": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    },
+    "/org": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "org.freedesktop.timesync1": {
+    "": {
+      "interfaces": []
+    },
+    "/": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    },
+    "/org": {
+      "interfaces": [
+        {
+          "methods": [
+            {
+              "args": [],
+              "name": "Ping"
+            },
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "machine_uuid",
+                  "type": "s"
+                }
+              ],
+              "name": "GetMachineId"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Peer",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "out",
+                  "name": "xml_data",
+                  "type": "s"
+                }
+              ],
+              "name": "Introspect"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Introspectable",
+          "properties": [],
+          "signals": []
+        },
+        {
+          "methods": [
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Get"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "out",
+                  "name": "props",
+                  "type": "a{sv}"
+                }
+              ],
+              "name": "GetAll"
+            },
+            {
+              "args": [
+                {
+                  "direction": "in",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "property_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "in",
+                  "name": "value",
+                  "type": "v"
+                }
+              ],
+              "name": "Set"
+            }
+          ],
+          "name": "org.freedesktop.DBus.Properties",
+          "properties": [],
+          "signals": [
+            {
+              "args": [
+                {
+                  "direction": "",
+                  "name": "interface_name",
+                  "type": "s"
+                },
+                {
+                  "direction": "",
+                  "name": "changed_properties",
+                  "type": "a{sv}"
+                },
+                {
+                  "direction": "",
+                  "name": "invalidated_properties",
+                  "type": "as"
+                }
+              ],
+              "name": "PropertiesChanged"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "org.gnome.DisplayManager": {
+    "/": {
+      "interfaces": []
+    },
+    "/org": {
+      "interfaces": []
+    },
+    "/orggnome": {
+      "interfaces": []
+    }
+  }
+}
