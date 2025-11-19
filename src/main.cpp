@@ -9,6 +9,7 @@
 #include "dbus2http-proxy/DbusEnumerator.h"
 #include "dbus2http-proxy/entity/DbusSerialization.h"
 #include "dbus2http-proxy/WebService.h"
+#include "dbus2http-proxy/DbusCaller.h"
 
 static std::atomic_bool g_running{true};
 
