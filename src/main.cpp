@@ -32,7 +32,7 @@ int main() {
   std::signal(SIGTERM, handle_sigint);
 
   const auto conn = sdbus::createSessionBusConnection(
-        sdbus::ServiceName(dbus2http::kServiceName));
+      sdbus::ServiceName(dbus2http::kServiceName));
 
   std::thread dbus_thread([&conn] { RunExample(conn); });
 
@@ -60,8 +60,36 @@ int main() {
   std::thread server_thread([&web_service] { web_service.run(8080); });
   std::cout << "WebService listening on port 8080. Press Ctrl+C to stop.\n";
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   while (g_running.load()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    httplib::Client client("http://localhost:8080");
+    std::string request = R"(
+        {
+          "name": "Charlie",
+          "name2age": {
+            "Alice": 17,
+            "Bob": 18
+          },
+          "name2valid": {
+            "Alice": true,
+            "Bob": false
+          },
+          "num": 123,
+          "valid": true
+        }
+      )";
+    auto res = client.Post(
+        "/dbus/com.example.ServiceName/path/to/object/"
+        "com.example.InterfaceName.Method2", request
+        , {"Content-Type: application/json"});
+    if (res && res->status == 200) {
+      std::cout << "dbus Method called." << std::endl;
+      std::cout << "Response:\n" << res->body << std::endl;
+    } else {
+      std::cerr << "dbus Method call failed." << std::endl;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
   }
 
   std::cout << "Stopping WebService...\n";
