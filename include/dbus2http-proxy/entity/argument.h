@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <nlohmann/json.hpp>
 
 namespace dbus2http {
 

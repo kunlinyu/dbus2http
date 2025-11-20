@@ -7,14 +7,14 @@
 
 #include <exception>
 #include <algorithm>
+#include <vector>
+#include <string>
 
 namespace dbus2http {
 
-DbusEnumerator::DbusEnumerator() = default;
-
 std::vector<std::string> DbusEnumerator::list_services() {
   try {
-    auto connection = sdbus::createSystemBusConnection();
+    auto connection = sdbus::createSessionBusConnection();
     auto proxy = sdbus::createProxy(*connection,
                                     sdbus::ServiceName("org.freedesktop.DBus"),
                                     sdbus::ObjectPath("/org/freedesktop/DBus"));
@@ -41,7 +41,7 @@ std::vector<std::string> DbusEnumerator::list_services() {
 std::string DbusEnumerator::introspect_service(const std::string& service_name, const std::string& path) {
   try {
     std::unique_ptr<sdbus::IConnection> connection =
-        sdbus::createSystemBusConnection();
+        sdbus::createSessionBusConnection();
     std::unique_ptr<sdbus::IProxy> proxy = sdbus::createProxy(
         *connection, sdbus::ServiceName(service_name), sdbus::ObjectPath(path));
 

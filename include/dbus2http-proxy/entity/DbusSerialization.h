@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include <dbus2http-proxy/DbusEnumerator.h>
-#include <sdbus-c++/Message.h>
+#include <httplib.h>
 #include <tinyxml2.h>
 
 #include <string>
+#include <nlohmann/json.hpp>
+
 
 #include "argument.h"
 #include "interface.h"
@@ -17,44 +18,36 @@
 #include "property.h"
 #include "service.h"
 #include "signal.h"
+#include "InterfaceContext.h"
 
 namespace dbus2http {
 
 // serialization to json
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Argument, name, type, direction);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Interface, name, methods, signals,
-                                   properties);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Method, name, args);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Signal, name, args);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Property, name, type, access);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ObjectPath, interfaces);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Service, name, object_paths);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Interface, name, methods, signals,
+                                   properties);
 
 // deserialization from xml
 class DbusSerialization {
  public:
-  static std::vector<ObjectPath> parse_object_paths_recursively(
-      const std::string& service_name, const std::string& path) {
-    const std::string xml =
-        DbusEnumerator::introspect_service(service_name, path);
+  static ObjectPath parse_single_object_path(const std::string& xml,
+                                             const std::string& path,
+                                             InterfaceContext& context) {
     tinyxml2::XMLDocument doc;
     doc.Parse(xml.c_str());
     const tinyxml2::XMLElement* root = doc.RootElement();
-    ObjectPath op = parse_single_object_path(root, path);
-    std::vector<ObjectPath> result;
-    result.push_back(op);
-    for (const auto& child : op.children_paths) {
-      std::string child_path = path + (path == "/" ? "" : "/") + child;
-      std::vector<ObjectPath> child_ops =
-          parse_object_paths_recursively(service_name, child_path);
-      result.insert(result.end(), child_ops.begin(), child_ops.end());
-    }
-    return result;
+    return parse_single_object_path(root, path, context);
   }
 
  private:
   static ObjectPath parse_single_object_path(const tinyxml2::XMLElement* node,
-                                             const std::string& path) {
+                                             const std::string& path,
+                                             InterfaceContext& context) {
     ObjectPath object_path;
     if (!node) return object_path;
 
@@ -62,8 +55,11 @@ class DbusSerialization {
 
     // parse interfaces under this node
     for (const auto* iface = node->FirstChildElement("interface"); iface;
-         iface = iface->NextSiblingElement("interface"))
+         iface = iface->NextSiblingElement("interface")) {
       object_path.add_interface(iface->Attribute("name"));
+      Interface interface = parse_interface(iface);
+      context.add(interface);
+    }
 
     // parse child nodes
     for (const auto* child = node->FirstChildElement("node"); child;

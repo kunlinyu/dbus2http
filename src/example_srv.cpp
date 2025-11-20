@@ -84,7 +84,7 @@ class ExampleService
     std::cout << "    b: " << std::get<1>(arg2) << std::endl;
     std::cout << "    a{sb}: " << std::endl;
     for (const auto& [k, v] : std::get<2>(arg2))
-      std::cout << "      " << k << " → " << v << std::endl;
+      std::cout << "      " << k << " → " << (v ? "true" : "false") << std::endl;
 
     return {{3, true}, {4, false}};
   }
