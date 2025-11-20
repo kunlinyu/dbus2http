@@ -8,13 +8,14 @@
 #include <string>
 #include <tuple>
 
+namespace dbus2http {
 const std::string kInterfaceName = "com.example.InterfaceName";
 const std::string kServiceName = "com.example.ServiceName";
 const std::string kObjectPath = "/path/to/object";
 
 class ExampleService
     : public sdbus::AdaptorInterfaces<sdbus::Properties_adaptor> {
- public:
+public:
   explicit ExampleService(sdbus::IConnection& connection)
       : AdaptorInterfaces(connection, sdbus::ObjectPath(kObjectPath)) {
     registerAdaptor();
@@ -54,7 +55,7 @@ class ExampleService
         .forInterface(kInterfaceName);
   }
 
- private:
+private:
   // dbus-send --session --print-reply --type=method_call --dest=com.example.ServiceName /path/to/object com.example.InterfaceName.Method0
   void Method0() { std::cout << "Method0" << std::endl; }
 
@@ -112,19 +113,4 @@ class ExampleService
   }
 };
 
-int main() {
-  try {
-    const auto connection =
-        sdbus::createSessionBusConnection(sdbus::ServiceName(kServiceName));
-
-    ExampleService service(*connection);
-    std::cout << "service launched" << std::endl;
-
-    connection->enterEventLoop();
-  } catch (const sdbus::Error& e) {
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
-
-  return 0;
 }

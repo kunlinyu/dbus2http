@@ -14,6 +14,3 @@ add_executable(dbus2http_proxy
         src/main.cpp
         src/DbusEnumerator.cpp)
 target_link_libraries(dbus2http_proxy tinyxml2::tinyxml2 SDBusCpp::sdbus-c++ nlohmann_json::nlohmann_json httplib::httplib)
-add_executable(example_srv
-        src/example_srv.cpp)
-target_link_libraries(example_srv SDBusCpp::sdbus-c++)

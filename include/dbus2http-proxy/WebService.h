@@ -18,35 +18,41 @@ namespace dbus2http {
 class WebService {
  private:
   httplib::Server server_;
+  DbusCaller caller_;
 
   // Helper to parse paths of the form:
   // /dbus/<service_name>/<object_path...>/<interface_name>/<method>
   // Fills out parameters and returns true on success.
-  static bool parse_dbus_request_path(const std::string& path, std::string& service_name,
-                                      std::string& object_path, std::string& interface_name,
+  static bool parse_dbus_request_path(const std::string& path,
+                                      std::string& service_name,
+                                      std::string& object_path,
+                                      std::string& interface_name,
                                       std::string& method) {
     const std::string prefix = "/dbus/";
-    if (path.size() <= prefix.size() || path.compare(0, prefix.size(), prefix) != 0) {
+    if (path.size() <= prefix.size() ||
+        path.compare(0, prefix.size(), prefix) != 0) {
       return false;
     }
 
-    std::string rem = path.substr(prefix.size());  // remaining part after "/dbus/"
+    std::string rem =
+        path.substr(prefix.size());  // remaining part after "/dbus/"
     const auto first_slash = rem.find('/');
     if (first_slash == std::string::npos) {
       return false;  // missing components
     }
     service_name = rem.substr(0, first_slash);
-    std::string rest = rem.substr(first_slash + 1);  // everything after service_name/
+    std::string rest =
+        rem.substr(first_slash + 1);  // everything after service_name/
 
     const auto last_slash = rest.rfind('/');
     if (last_slash == std::string::npos)
       return false;  // missing interface/method
     std::string interface_method = rest.substr(last_slash + 1);
-    std::string before_interface = rest.substr(0, last_slash);  // may include object_path and interface
+    std::string before_interface =
+        rest.substr(0, last_slash);  // may include object_path and interface
 
     const auto last_dot = interface_method.rfind('.');
-    if (last_dot == std::string::npos)
-      return false;
+    if (last_dot == std::string::npos) return false;
 
     method = interface_method.substr(last_dot + 1);
     interface_name = interface_method.substr(0, last_dot);
@@ -56,19 +62,32 @@ class WebService {
   }
 
  public:
-  WebService() {
-    server_.Get("/echo",
-                [](const httplib::Request& req, httplib::Response& res) {
-                  res.set_content("echo", "text/plain");
-                });
+  WebService(const InterfaceContext& context) : caller_(context) {
+    server_.Post("/echo",
+                 [](const httplib::Request& req, httplib::Response& res) {
+                   res.set_content("echo", "text/plain");
+                 });
 
     // Replace the simple "/dbus/" handler with a wildcard handler that parses
-    // paths like: /dbus/<service_name>/<object_path...>/<interface_name>/<method>
-    server_.Get(R"(/dbus/.*)", [](const httplib::Request& req, httplib::Response& res) {
+    // paths like:
+    // /dbus/<service_name>/<object_path...>/<interface_name>/<method>
+    server_.Post(R"(/dbus/.*)", [this](const httplib::Request& req,
+                                       httplib::Response& res) {
       std::string service_name, object_path, interface_name, method;
-      if (!WebService::parse_dbus_request_path(req.path, service_name, object_path, interface_name, method)) {
+      if (!parse_dbus_request_path(req.path, service_name, object_path,
+                                   interface_name, method)) {
+        std::cerr << "parse error" << std::endl;
         res.status = 400;
         res.set_content("invalid or incomplete dbus path", "text/plain");
+        return;
+      }
+      nlohmann::json request;
+      try {
+        request = nlohmann::json::parse(req.body);
+      } catch (const nlohmann::json::parse_error& e) {
+        res.status = 400;
+        res.set_content(std::string("invalid JSON body: ") + e.what(),
+                        "text/plain");
         return;
       }
 
@@ -78,7 +97,7 @@ class WebService {
       out << "object_path: " << object_path << "\n";
       out << "interface_name: " << interface_name << "\n";
       out << "method: " << method << "\n";
-      out << "\n# TODO: continue handling DBus call here\n";
+      caller_.Call(service_name, object_path, interface_name, method, request);
       res.set_content(out.str(), "text/plain");
     });
 
@@ -93,7 +112,7 @@ class WebService {
           ts << std::put_time(&tm, "%F %T");
 
           // Log: [timestamp] client "METHOD path" status body_size
-          std::cerr << "[" << ts.str() << "] " << req.remote_addr << " \""
+          std::cout << "[" << ts.str() << "] " << req.remote_addr << " \""
                     << req.method << " " << req.path << "\" " << res.status
                     << " " << res.body.size() << std::endl;
         });
@@ -118,4 +137,3 @@ class WebService {
 };
 
 }  // namespace dbus2http
-

@@ -8,34 +8,33 @@
 
 #include "dbus2http-proxy/DbusCaller.h"
 #include "dbus2http-proxy/DbusEnumerator.h"
+#include "dbus2http-proxy/ExampleService.h"
 #include "dbus2http-proxy/WebService.h"
 
 static std::atomic_bool g_running{true};
 
 static void handle_sigint(int) { g_running.store(false); }
 
+void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
+  try {
+    dbus2http::ExampleService service(*connection);
+    std::cout << "service launched" << std::endl;
+
+    connection->enterEventLoop();
+    connection->leaveEventLoop();
+  } catch (const sdbus::Error& e) {
+    std::cerr << e.what() << std::endl;
+  }
+}
+
 int main() {
   std::signal(SIGINT, handle_sigint);
   std::signal(SIGTERM, handle_sigint);
 
-  // Start web service in background
-  dbus2http::WebService web_service;
-  // std::thread server_thread([&web_service] {
-  //   // blocking call
-  //   web_service.run(8080);
-  // });
+  const auto conn = sdbus::createSessionBusConnection(
+        sdbus::ServiceName(dbus2http::kServiceName));
 
-  std::cout << "WebService listening on port 8080. Press Ctrl+C to stop.\n";
-
-  // deadloop controlled by atomic boolean; SIGINT will set g_running to false.
-  // while (g_running.load()) {
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(200));
-  // }
-
-  // std::cout << "Stopping WebService...\n";
-  // web_service.stop();
-  // if (server_thread.joinable()) server_thread.join();
-  // std::cout << "Stopped WebService.\n";
+  std::thread dbus_thread([&conn] { RunExample(conn); });
 
   dbus2http::InterfaceContext context;
   dbus2http::DbusEnumerator dbusEnumerator(context);
@@ -52,24 +51,28 @@ int main() {
                        object_paths.end());
     nlohmann::json j;
     for (const auto& op : object_paths) j[op.path] = op;
-        all["services"][service_name] = j;
+    all["services"][service_name] = j;
     all["interfaces"] = context.interfaces;
-    std::cout << all.dump(2) << std::endl;
   }
 
-  std::cout << "going to call Method2" << std::endl;
-  dbus2http::DbusCaller caller(context);
-  nlohmann::json request = {
-    {"num", 123},
-    {"name2age", {{"Alice", 17}, {"Bob", 18}}},
-    {"name", "Charlie"},
-    {"valid", true},
-    {"name2valid", {{"Alice", true}, {"Bob", false}}}
-  };
-  std::cout << "request: " << request.dump(2) << std::endl;
-  caller.Call("com.example.ServiceName", "/path/to/object",
-              "com.example.InterfaceName", "Method2", request);
-  std::cout << "call finished" << std::endl;
+  // Start web service in background
+  dbus2http::WebService web_service(context);
+  std::thread server_thread([&web_service] { web_service.run(8080); });
+  std::cout << "WebService listening on port 8080. Press Ctrl+C to stop.\n";
+
+  while (g_running.load()) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+
+  std::cout << "Stopping WebService...\n";
+  web_service.stop();
+  if (server_thread.joinable()) server_thread.join();
+  std::cout << "Stopped WebService.\n";
+
+  std::cout << "Stopping D-Bus example service...\n";
+  conn->leaveEventLoop();
+  if (dbus_thread.joinable()) dbus_thread.join();
+  std::cout << "Stopped D-Bus example service.\n";
 
   // save all into a file
   std::ofstream fout("dbus_structure.json");
