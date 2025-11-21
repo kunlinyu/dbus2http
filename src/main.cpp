@@ -24,6 +24,7 @@ void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
     connection->leaveEventLoop();
   } catch (const sdbus::Error& e) {
     std::cerr << e.what() << std::endl;
+
   }
 }
 
