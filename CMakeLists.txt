@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.22)
 project(dbus2http_proxy)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(sdbus-c++)
-find_package(nlohmann_json)
-find_package(httplib)
-find_package(tinyxml2)
+find_package(sdbus-c++ REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(httplib REQUIRED)
+find_package(tinyxml2 REQUIRED)
 
 include_directories(include)
 
