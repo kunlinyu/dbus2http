@@ -80,9 +80,9 @@ private:
     for (const auto& [k, v] : std::get<1>(arg1))
       std::cout << "      " << k << " → " << v << std::endl;
 
-    std::cout << "  arg1: " << std::endl;
+    std::cout << "  arg2: " << std::endl;
     std::cout << "    s: " << std::get<0>(arg2) << std::endl;
-    std::cout << "    b: " << std::get<1>(arg2) << std::endl;
+    std::cout << "    b: " << (std::get<1>(arg2) ? "true" : "false") << std::endl;
     std::cout << "    a{sb}: " << std::endl;
     for (const auto& [k, v] : std::get<2>(arg2))
       std::cout << "      " << k << " → " << (v ? "true" : "false") << std::endl;

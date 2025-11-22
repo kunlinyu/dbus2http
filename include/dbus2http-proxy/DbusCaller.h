@@ -33,11 +33,12 @@ class DbusCaller {
                                     sdbus::ObjectPath(object_path));
     auto method = proxy->createMethodCall(sdbus::InterfaceName(interface_name),
                                           sdbus::MethodName(method_name));
+    Method method_type = context_.GetMethod(interface_name, method_name);
     Json2Message::FillMethod(
         method, context_.GetMethod(interface_name, method_name), request);
 
     auto reply = proxy->callMethod(method);
-    return Message2Json::ExtractMethod(reply);
+    return Message2Json::ExtractMethod(reply, method_type);
   }
 
  private:

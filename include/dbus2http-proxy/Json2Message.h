@@ -19,20 +19,22 @@ class Json2Message {
                          const Method& method_type,
                          const nlohmann::json& json) {
     for (const auto& arg : method_type.args) {
-      if (arg.direction == "out") continue;
+      if (arg.direction != "in") continue;
       if (!json.contains(arg.name))
         throw std::invalid_argument("Missing argument: " + arg.name);
       FillMethodSig(method_call, json[arg.name], arg.type);
     }
   }
 
-  static void FillMethodSig(sdbus::MethodCall& method_call,
+  static void FillDictToMethod(sdbus::MethodCall& method_call,
                             const std::string& key, const nlohmann::json& json,
                             const std::string& sig) {
     if (sig.size() != 2)
       throw std::invalid_argument("Expected signature length 2 but we get :" +
                                   sig);
-    switch (const char key_type = sig.front()) {
+    char key_sig = sig.front();
+    std::string value_sig = sig.substr(1);
+    switch (key_sig) {
       case 'b':  // boolean
         if (key == "true")
           method_call << true;
@@ -43,25 +45,25 @@ class Json2Message {
                                       key);
         break;
       case 'y':  // byte
-        method_call << extract_integer<uint8_t>(key, key_type);
+        method_call << extract_integer<uint8_t>(key, key_sig);
         break;
       case 'n':  // int16
-        method_call << extract_integer<int16_t>(key, key_type);
+        method_call << extract_integer<int16_t>(key, key_sig);
         break;
       case 'q':  // uint16
-        method_call << extract_integer<uint16_t>(key, key_type);
+        method_call << extract_integer<uint16_t>(key, key_sig);
         break;
       case 'i':  // int32
-        method_call << extract_integer<int32_t>(key, key_type);
+        method_call << extract_integer<int32_t>(key, key_sig);
         break;
       case 'u':  // uint32
-        method_call << extract_integer<uint32_t>(key, key_type);
+        method_call << extract_integer<uint32_t>(key, key_sig);
         break;
       case 'x':  // int64
-        method_call << extract_integer<int64_t>(key, key_type);
+        method_call << extract_integer<int64_t>(key, key_sig);
         break;
       case 't':  // uint64
-        method_call << extract_integer<uint64_t>(key, key_type);
+        method_call << extract_integer<uint64_t>(key, key_sig);
         break;
       case 'd':  // double
       {
@@ -75,7 +77,7 @@ class Json2Message {
         throw std::invalid_argument(
             "the key of dict must be basic type but we get: " + sig);
     }
-    FillMethodSig(method_call, json, sig.substr(1));
+    FillMethodSig(method_call, json, value_sig);
   }
 
   static void FillMethodSig(sdbus::MethodCall& method_call,
@@ -94,7 +96,7 @@ class Json2Message {
       for (size_t i = 0; i < complete_sigs.size(); ++i)
         FillMethodSig(method_call, json[i], complete_sigs[i]);
     } else if (complete_sigs.size() == 1) {
-      const std::string current_sig = complete_sigs.front();
+      const std::string& current_sig = complete_sigs.front();
       switch (current_sig.front()) {
         case 'b':  // boolean
           if (json.is_boolean()) {
@@ -163,7 +165,7 @@ class Json2Message {
                 std::cout << "dict opened" << std::endl;
                 std::cout << "extract " << value.dump() << " from "
                           << json.dump() << std::endl;
-                FillMethodSig(method_call, key, value, element_sig);
+                FillDictToMethod(method_call, key, value, element_sig);
                 std::cout << "close dict entry " << element_sig << std::endl;
                 method_call.closeDictEntry();
                 std::cout << "dict closed" << std::endl;

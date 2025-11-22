@@ -92,13 +92,12 @@ class WebService {
       }
 
       // Provide extracted values and leave the rest to the user
-      std::ostringstream out;
-      out << "service_name: " << service_name << "\n";
-      out << "object_path: " << object_path << "\n";
-      out << "interface_name: " << interface_name << "\n";
-      out << "method: " << method << "\n";
-      caller_.Call(service_name, object_path, interface_name, method, request);
-      res.set_content(out.str(), "text/plain");
+      std::cout << "service_name: " << service_name << "\n";
+      std::cout << "object_path: " << object_path << "\n";
+      std::cout << "interface_name: " << interface_name << "\n";
+      std::cout << "method: " << method << "\n";
+      nlohmann::json response = caller_.Call(service_name, object_path, interface_name, method, request);
+      res.set_content(response.dump(), "application/json");
     });
 
     server_.set_logger(
