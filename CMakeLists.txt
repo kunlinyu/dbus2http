@@ -12,5 +12,10 @@ include_directories(include)
 
 add_executable(dbus2http_proxy
         src/main.cpp
-        src/DbusEnumerator.cpp)
+        src/DbusEnumerator.cpp
+        src/DbusSerialization.cpp
+        src/SignatureUtils.cpp
+        src/WebService.cpp
+        src/Json2Message.cpp
+        src/ExampleService.cpp)
 target_link_libraries(dbus2http_proxy tinyxml2::tinyxml2 SDBusCpp::sdbus-c++ nlohmann_json::nlohmann_json httplib::httplib)

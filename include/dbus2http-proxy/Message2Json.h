@@ -35,7 +35,7 @@ class Message2Json {
   }
 
   static nlohmann::json ExtractMethod2(sdbus::MethodReply& method_reply, const Method& method_type, const std::string& sig) {
-
+    return {};
   }
 };
 

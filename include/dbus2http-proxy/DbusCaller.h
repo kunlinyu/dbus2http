@@ -17,18 +17,17 @@
 namespace dbus2http {
 
 class DbusCaller {
- private:
   std::unique_ptr<sdbus::IConnection> conn_;
   const InterfaceContext& context_;
 
  public:
-  DbusCaller(const InterfaceContext& context) : context_(context) {
+  explicit DbusCaller(const InterfaceContext& context) : context_(context) {
     conn_ = sdbus::createSessionBusConnection();
   }
 
-  nlohmann::json Call(const std::string& service_name, const std::string& object_path,
+  [[nodiscard]] nlohmann::json Call(const std::string& service_name, const std::string& object_path,
             const std::string& interface_name, const std::string& method_name,
-            const nlohmann::json& request) {
+            const nlohmann::json& request) const {
     auto proxy = sdbus::createProxy(sdbus::ServiceName(service_name),
                                     sdbus::ObjectPath(object_path));
     auto method = proxy->createMethodCall(sdbus::InterfaceName(interface_name),
@@ -40,8 +39,6 @@ class DbusCaller {
     auto reply = proxy->callMethod(method);
     return Message2Json::ExtractMethod(reply, method_type);
   }
-
- private:
 };
 
 }  // namespace dbus2http
