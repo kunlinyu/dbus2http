@@ -12,14 +12,13 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
   registerAdaptor();
   getObject()
       .addVTable(sdbus::registerMethod("Method0").implementedAs(
-          [this]() { return this->Method0(); }))
+          [] { return Method0(); }))
       .forInterface(kInterfaceName);
   getObject()
       .addVTable(sdbus::registerMethod("Method1")
                      .withInputParamNames("age")
                      .withOutputParamNames("valid")
-                     .implementedAs(
-                         [this](int32_t age) { return this->Method1(age); }))
+                     .implementedAs([](int32_t age) { return Method1(age); }))
       .forInterface(kInterfaceName);
   getObject()
       .addVTable(
@@ -28,19 +27,19 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
                                    "name2valid")
               .withOutputParamNames("age2valid")
               .implementedAs(
-                  [this](const std::tuple<int32_t,
-                                          std::map<std::string, int32_t>>& arg1,
-                         const std::tuple<std::string, bool,
-                                          std::map<std::string, bool>>& arg2) {
-                    return this->Method2(arg1, arg2);
+                  [](const std::tuple<int32_t, std::map<std::string, int32_t>>&
+                         arg1,
+                     const std::tuple<std::string, bool,
+                                      std::map<std::string, bool>>& arg2) {
+                    return Method2(arg1, arg2);
                   }))
       .forInterface(kInterfaceName);
   getObject()
       .addVTable(sdbus::registerMethod("Method3")
                      .withInputParamNames("config")
                      .withOutputParamNames("status")
-                     .implementedAs([this](const sdbus::Variant& config) {
-                       return this->Method3(config);
+                     .implementedAs([](const sdbus::Variant& config) {
+                       return Method3(config);
                      }))
       .forInterface(kInterfaceName);
 }

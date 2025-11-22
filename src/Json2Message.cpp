@@ -75,7 +75,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
                                         const nlohmann::json& json,
                                         const std::string& sig) {
   std::cout << "FillmethodSig: " << json.dump() << std::endl;
-  std::vector<std::string> complete_sigs = SignatureUtils::split_signature(sig);
+  std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
     if (not json.is_array())
       throw std::invalid_argument("Expected array type but we get :" +

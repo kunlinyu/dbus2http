@@ -8,7 +8,7 @@
 
 namespace dbus2http {
 
-std::vector<std::string> SignatureUtils::split_signature(
+std::vector<std::string> SignatureUtils::split(
     const std::string& sig) {
   std::string remain_sig = sig;
   std::vector<std::string> result;
