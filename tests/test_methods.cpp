@@ -9,7 +9,7 @@
 #include <string>
 
 #include "dbus2http-proxy/Dbus2Http.h"
-#include "dbus2http-proxy/test_methods.h"
+#include "dbus2http-proxy/EchoService.h"
 
 namespace dbus2http {
 
@@ -20,6 +20,7 @@ void run_one_case(httplib::Client& client, const std::string& request,
       "com.test.InterfaceName." + method_name,
       request, {"Content-Type: application/json"});
   REQUIRE(res);
+  std::cout << res->status << std::endl;
   REQUIRE(res->status == 200);
   REQUIRE(res->body == request);
 }
@@ -29,7 +30,7 @@ TEST_CASE("call methods", "[i][i]") {
       sdbus::ServiceName(dbus2http::kEchoServiceName));
   std::thread dbus_thread([&conn] {
     try {
-      test_methods service(*conn);
+      EchoService service(*conn);
 
       conn->enterEventLoop();
     } catch (const sdbus::Error& e) {
@@ -41,15 +42,38 @@ TEST_CASE("call methods", "[i][i]") {
   Dbus2Http dbus2http;
   dbus2http.start();
   httplib::Client client("http://localhost:8080");
-
-  SECTION("method i") {
-    run_one_case(client, R"({"arg0":123})", "method_i");
+  SECTION("method b") {  // boolean
+    run_one_case(client, "{\"arg0\":true}", "method_b");
   }
-  SECTION("method b") {
-    run_one_case(client, R"({"arg0":true})", "method_b");
+  SECTION("method y") {  // byte
+    run_one_case(client, "{\"arg0\":255}", "method_y");
   }
-  SECTION("method y") {
-    run_one_case(client, R"({"arg0":3})", "method_y");
+  SECTION("method n") {  // int16
+    run_one_case(client, "{\"arg0\":-32768}", "method_n");
+  }
+  SECTION("method q") {  // uint16
+    run_one_case(client, "{\"arg0\":65535}", "method_q");
+  }
+  SECTION("method i") {  // int32
+    run_one_case(client, "{\"arg0\":-2147483648}", "method_i");
+  }
+  SECTION("method u") {  // uint32
+    run_one_case(client, "{\"arg0\":4294967295}", "method_u");
+  }
+  SECTION("method x") {  // int64
+    run_one_case(client, "{\"arg0\":-9223372036854775808}", "method_x");
+  }
+  SECTION("method t") {  // uint64
+    run_one_case(client, "{\"arg0\":18446744073709551615}", "method_t");
+  }
+  SECTION("method d") {  // double
+    run_one_case(client, R"({"arg0":123.45})", "method_d");
+  }
+  SECTION("method s") {  // string
+    run_one_case(client, R"({"arg0":"hello"})", "method_s");
+  }
+  SECTION("method (is)") {  // string
+    run_one_case(client, R"({"arg0":[123,"hello"]})", "method_SisS");
   }
   SECTION("method isa{si}") {
     std::string request = R"({"arg0":123,"arg1":"hello","arg2":{"Alic":23,"Bob":45}})";

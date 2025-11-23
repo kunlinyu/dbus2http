@@ -15,8 +15,8 @@ std::vector<std::string> SignatureUtils::split(
   std::string::size_type pos;
   while (not remain_sig.empty()) {
     switch (remain_sig.front()) {
-      case 'y':  // byte
       case 'b':  // boolean
+      case 'y':  // byte
       case 'n':  // int16
       case 'q':  // uint16
       case 'i':  // int32

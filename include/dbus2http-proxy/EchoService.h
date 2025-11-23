@@ -15,17 +15,32 @@ const std::string kEchoServiceName = "com.test.ServiceName";
 const std::string kEchoInterfaceName = "com.test.InterfaceName";
 const std::string kEchoObjectPath = "/path/to/object";
 
-class test_methods : public sdbus::AdaptorInterfaces<> {
+class EchoService : public sdbus::AdaptorInterfaces<> {
 
  public:
-  explicit test_methods(sdbus::IConnection& connection)
+  explicit EchoService(sdbus::IConnection& connection)
       : AdaptorInterfaces(connection, sdbus::ObjectPath(kEchoObjectPath)) {
     getObject()
         .addVTable(sdbus::registerMethod("method").implementedAs([] {}))
         .forInterface(kEchoInterfaceName);
-    AddMethod("method_i", "i", {"arg0"});
-    AddMethod("method_y", "y", {"arg0"});
-    AddMethod("method_b", "b", {"arg0"});
+    AddMethod("method_b", "b", {"arg0"});  // boolean
+    AddMethod("method_y", "y", {"arg0"});  // byte
+    AddMethod("method_n", "n", {"arg0"});  // int16
+    AddMethod("method_q", "q", {"arg0"});  // uint16
+    AddMethod("method_i", "i", {"arg0"});  // int32
+    AddMethod("method_u", "u", {"arg0"});  // uint32
+    AddMethod("method_x", "x", {"arg0"});  // int64
+    AddMethod("method_t", "t", {"arg0"});  // uint64
+    AddMethod("method_d", "d", {"arg0"});  // double
+    AddMethod("method_s", "s", {"arg0"});  // string
+    // TODO: v
+    AddMethod("method_SisS", "(is)", {"arg0"});
+    AddMethod("method_Sbynqiuxtds", "(bynqiuxtds)", {"arg0"});
+    AddMethod("method_ai", "ai", {"arg0"});
+    AddMethod("method_aSisS", "a(is)", {"arg0"});
+    AddMethod("method_aSbynqiuxtdsS", "a(bynqiuxtds)", {"arg0"});
+    AddMethod("method_aDssD", "a{ss}", {"arg0"});
+    AddMethod("method_aDiiD", "a{ii}", {"arg0"});
     AddMethod("method_isaDsiD", "isa{si}", {"arg0", "arg1", "arg2"});
   }
   void AddMethod(const std::string& method_name,

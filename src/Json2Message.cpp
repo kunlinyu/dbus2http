@@ -7,8 +7,8 @@
 namespace dbus2http {
 
 void Json2Message::FillMethod(sdbus::MethodCall& method_call,
-                                     const Method& method_type,
-                                     const nlohmann::json& json) {
+                              const Method& method_type,
+                              const nlohmann::json& json) {
   for (const auto& arg : method_type.args) {
     if (arg.direction != "in") continue;
     if (!json.contains(arg.name))
@@ -18,9 +18,9 @@ void Json2Message::FillMethod(sdbus::MethodCall& method_call,
 }
 
 void Json2Message::FillDictToMethod(sdbus::MethodCall& method_call,
-                                           const std::string& key,
-                                           const nlohmann::json& json,
-                                           const std::string& sig) {
+                                    const std::string& key,
+                                    const nlohmann::json& json,
+                                    const std::string& sig) {
   if (sig.size() != 2)
     throw std::invalid_argument("Expected signature length 2 but we get :" +
                                 sig);
@@ -72,9 +72,9 @@ void Json2Message::FillDictToMethod(sdbus::MethodCall& method_call,
 }
 
 void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
-                                        const nlohmann::json& json,
-                                        const std::string& sig) {
-  std::cout << "FillmethodSig: " << json.dump() << std::endl;
+                                 const nlohmann::json& json,
+                                 const std::string& sig) {
+  std::cout << "FillmethodSig: " << json.dump() << " " << sig << std::endl;
   std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
     if (not json.is_array())
@@ -91,8 +91,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
     switch (current_sig.front()) {
       case 'b':  // boolean
         if (json.is_boolean()) {
-          std::cout << "append " << std::string(typeid(bool).name()) << " "
-                    << json.dump() << std::endl;
+          std::cout << "append bool " << json.dump() << std::endl;
           method_call << json.get<bool>();
         } else
           throw std::invalid_argument("Expected bool type but we get :" +
@@ -121,8 +120,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
         break;
       case 'd':  // double
         if (json.is_number()) {
-          std::cout << "append " << std::string(typeid(double).name()) << " "
-                    << json.dump() << std::endl;
+          std::cout << "append double " << json.dump() << std::endl;
           method_call << json.get<double>();
         } else
           throw std::invalid_argument("Expected float type but we get :" +
@@ -130,8 +128,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
         break;
       case 's':  // string
         if (json.is_string()) {
-          std::cout << "append " << std::string(typeid(std::string).name())
-                    << " " << json.dump() << std::endl;
+          std::cout << "append string " << json.dump() << std::endl;
           method_call << json.get<std::string>();
         } else
           throw std::invalid_argument("Expected float type but we get :" +
@@ -175,11 +172,16 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
 
         break;
       case '(':  // struct
-        FillMethodSig(method_call, json,
-                      current_sig.substr(1, current_sig.size() - 2));
-        break;
+      {
+        std::string element_sig = current_sig.substr(1, current_sig.size() - 2);
+        std::cout << "open struct " << element_sig << std::endl;
+        method_call.openStruct(element_sig.c_str());
+        FillMethodSig(method_call, json, element_sig);
+        std::cout << "close struct " << current_sig << std::endl;
+        method_call.closeStruct();
+      } break;
       default:;
     }
   }
 }
-}
+}  // namespace dbus2http

@@ -76,7 +76,13 @@ class Message2Json {
         // method_reply >> v;
         return {};
       case '(':  // struct
-        return ExtractMethod(method_reply, sig.substr(1, sig.size() - 2));
+      {
+        std::string element_sig = sig.substr(1, sig.size() - 2);
+        method_reply.enterStruct(element_sig.c_str());
+        auto j = ExtractMethod(method_reply, element_sig);
+        method_reply.exitStruct();
+        return j;
+      }
       case 'a':               // array, dict
         if (sig[1] == '{') {  // dict
           nlohmann::json result;
