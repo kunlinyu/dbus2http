@@ -69,6 +69,7 @@ class Message2Json {
       case 'd':  // double
         return get_int<double>(method_reply);
       case 's':  // string
+        std::cout << "extract string" << std::endl;
         return get_int<std::string>(method_reply);
       case 'v':  // variant
         // TODO: support variant
@@ -123,11 +124,18 @@ class Message2Json {
           std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
           std::cout << "enter container " << array_sig << std::endl;
           method_reply.enterContainer(array_sig.c_str());
+          std::cout << "entered container " << array_sig << std::endl;
           while (true) {
-            nlohmann::json value = ExtractMethod(method_reply, element_sig.substr(1));
-            if (method_reply)
+            std::cout << "enter struct " << element_sig << std::endl;
+            if (not method_reply.enterStruct(element_sig.c_str())) break;
+            std::cout << "entered struct " << element_sig << std::endl;
+            nlohmann::json value = ExtractMethod(method_reply, element_sig);
+            if (method_reply) {
               result.push_back(value);
-            else
+              std::cout << "exit struct " << element_sig << std::endl;
+              method_reply.exitStruct();
+              std::cout << "exited struct " << element_sig << std::endl;
+            } else
               break;
           }
           method_reply.clearFlags();
