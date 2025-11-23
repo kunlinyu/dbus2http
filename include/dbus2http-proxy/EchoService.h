@@ -42,6 +42,7 @@ class EchoService : public sdbus::AdaptorInterfaces<> {
     AddMethod("method_aDssD", "a{ss}", {"arg0"});
     AddMethod("method_aDiiD", "a{ii}", {"arg0"});
     AddMethod("method_isaDsiD", "isa{si}", {"arg0", "arg1", "arg2"});
+    AddMethod("method_iaDiSssaSiiaDssDSSD", "ia{i(ssa(iia{ss}))}", {"arg0", "arg1"});
   }
   void AddMethod(const std::string& method_name,
                  const std::string& signature_in_out,

@@ -36,6 +36,7 @@ public:
 
     service_ = std::make_unique<WebService>(context_);
     service_thread_ = std::thread([&] { service_->run(8080); });
+    std::cout << "dbus2http started" << std::endl;
   }
 
   void stop() {

@@ -55,6 +55,7 @@ WebService::WebService(const InterfaceContext& context)
   // /dbus/<service_name>/<object_path...>/<interface_name>/<method>
   server_.Post(R"(/dbus/.*)", [this](const httplib::Request& req,
                                      httplib::Response& res) {
+    std::cout << "in post" << std::endl;
     std::string service_name, object_path, interface_name, method;
     if (!parse_dbus_request_path(req.path, service_name, object_path,
                                  interface_name, method)) {
@@ -78,9 +79,17 @@ WebService::WebService(const InterfaceContext& context)
     std::cout << "object_path: " << object_path << "\n";
     std::cout << "interface_name: " << interface_name << "\n";
     std::cout << "method: " << method << "\n";
-    nlohmann::json response = caller_.Call(service_name, object_path,
-                                           interface_name, method, request);
-    res.set_content(response.dump(), "application/json");
+    try {
+      nlohmann::json response = caller_.Call(service_name, object_path,
+                                             interface_name, method, request);
+      res.set_content(response.dump(), "application/json");
+    } catch (const std::exception& e) {
+      res.status = 500;
+      std::string what = e.what();
+      std::cerr << "exception: " << what << std::endl;
+      res.set_content(R"({"message": ")" + what + "\"}", "application/json");
+    }
+
   });
 
   server_.set_logger(
