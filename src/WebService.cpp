@@ -96,7 +96,7 @@ WebService::WebService(const InterfaceContext& context)
         // Log: [timestamp] client "METHOD path" status body_size
         std::cout << "[" << ts.str() << "] " << req.remote_addr << " \""
                   << req.method << " " << req.path << "\" " << res.status << " "
-                  << res.body.size() << std::endl;
+                  << res.body.substr(0, res.body.size() < 100 ? res.body.size() : 100) << std::endl;
       });
 
   server_.set_exception_handler([](const httplib::Request& req,

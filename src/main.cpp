@@ -8,9 +8,9 @@
 
 #include "dbus2http-proxy/DbusCaller.h"
 #include "dbus2http-proxy/DbusEnumerator.h"
-#include "dbus2http-proxy/EchoService.h"
 #include "dbus2http-proxy/ExampleService.h"
 #include "dbus2http-proxy/WebService.h"
+#include "dbus2http-proxy/test_methods.h"
 
 static std::atomic_bool g_running{true};
 
@@ -19,7 +19,7 @@ static void handle_sigint(int) { g_running.store(false); }
 void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
   try {
     dbus2http::ExampleService service(*connection);
-    dbus2http::EchoService service2(*connection);
+    dbus2http::test_methods service2(*connection);
 
     connection->enterEventLoop();
   } catch (const sdbus::Error& e) {

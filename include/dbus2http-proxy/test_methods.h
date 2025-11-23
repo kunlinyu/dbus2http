@@ -7,16 +7,18 @@
 #include <sdbus-c++/sdbus-c++.h>
 
 #include <string>
+#include <iostream>
 
 namespace dbus2http {
 
+const std::string kEchoServiceName = "com.test.ServiceName";
 const std::string kEchoInterfaceName = "com.test.InterfaceName";
 const std::string kEchoObjectPath = "/path/to/object";
 
-class EchoService : public sdbus::AdaptorInterfaces<> {
+class test_methods : public sdbus::AdaptorInterfaces<> {
 
  public:
-  explicit EchoService(sdbus::IConnection& connection)
+  explicit test_methods(sdbus::IConnection& connection)
       : AdaptorInterfaces(connection, sdbus::ObjectPath(kEchoObjectPath)) {
     getObject()
         .addVTable(sdbus::registerMethod("method").implementedAs([] {}))
