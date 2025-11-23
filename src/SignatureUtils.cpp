@@ -36,16 +36,12 @@ std::vector<std::string> SignatureUtils::split(
         break;
 
       case 'a':  // array
-        char left;
-        char right;
-        if (remain_sig[1] == '(') {
-          left = '(';
-          right = ')';
-        } else if (remain_sig[1] == '{') {
-          left = '{';
-          right = '}';
-        }
-        pos = find_match_bracket(remain_sig, 1, left, right);
+        if (remain_sig[1] == '(')
+          pos = find_match_bracket(remain_sig, 1, '(', ')');
+        else if (remain_sig[1] == '{')
+          pos = find_match_bracket(remain_sig, 1, '{', '}');
+        else  // single charactor array
+          pos = 2;
         result.emplace_back(remain_sig.substr(0, pos));
         remain_sig = remain_sig.substr(pos);
         break;

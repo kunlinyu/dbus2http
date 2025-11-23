@@ -46,7 +46,7 @@ void run_one_case(httplib::Client& client, const std::string& request,
 
   REQUIRE(res);
   REQUIRE(res->status == 200);
-  // REQUIRE(res->body == request);
+  REQUIRE(res->body == request);
 }
 
 TEST_CASE("call methods", "[i][i]") {
@@ -74,36 +74,61 @@ TEST_CASE("call methods", "[i][i]") {
   httplib::Client client("http://localhost:8080");
   SECTION("method b") {  // boolean
     run_one_case(client, "{\"arg0\":true}", "method_b");
+    run_one_case(client, "{\"arg0\":false}", "method_b");
   }
   SECTION("method y") {  // byte
+    run_one_case(client, "{\"arg0\":0}", "method_y");
     run_one_case(client, "{\"arg0\":255}", "method_y");
   }
   SECTION("method n") {  // int16
+    run_one_case(client, "{\"arg0\":32767}", "method_n");
     run_one_case(client, "{\"arg0\":-32768}", "method_n");
   }
   SECTION("method q") {  // uint16
+    run_one_case(client, "{\"arg0\":0}", "method_q");
     run_one_case(client, "{\"arg0\":65535}", "method_q");
   }
   SECTION("method i") {  // int32
+    run_one_case(client, "{\"arg0\":2147483647}", "method_i");
     run_one_case(client, "{\"arg0\":-2147483648}", "method_i");
   }
   SECTION("method u") {  // uint32
+    run_one_case(client, "{\"arg0\":0}", "method_u");
     run_one_case(client, "{\"arg0\":4294967295}", "method_u");
   }
   SECTION("method x") {  // int64
+    run_one_case(client, "{\"arg0\":9223372036854775807}", "method_x");
     run_one_case(client, "{\"arg0\":-9223372036854775808}", "method_x");
   }
   SECTION("method t") {  // uint64
+    run_one_case(client, "{\"arg0\":0}", "method_t");
     run_one_case(client, "{\"arg0\":18446744073709551615}", "method_t");
   }
   SECTION("method d") {  // double
+    run_one_case(client, R"({"arg0":-123.45})", "method_d");
     run_one_case(client, R"({"arg0":123.45})", "method_d");
+    run_one_case(client, R"({"arg0":0.0})", "method_d");
   }
   SECTION("method s") {  // string
     run_one_case(client, R"({"arg0":"hello"})", "method_s");
+    run_one_case(client, R"({"arg0":"让我们说中文"})", "method_s");
   }
   SECTION("method (is)") {  // string
     run_one_case(client, R"({"arg0":[123,"hello"]})", "method_SisS");
+    run_one_case(client, R"({"arg0":[-123,"让我们说中文"]})", "method_SisS");
+  }
+  SECTION("method (bynqiuxtds)") {
+    std::string request;
+    request = R"({"arg0":[true,1,1,1,1,1,1,1,1.1,"hello"]})";
+    run_one_case(client, request, "method_Sbynqiuxtds");
+    request = R"({"arg0":[false,0,0,0,0,0,0,0,0.1,"让我们说中文"]})";
+    run_one_case(client, request, "method_Sbynqiuxtds");
+  }
+  SECTION("method ai") {  // string
+    run_one_case(client, R"({"arg0":[1]})", "method_ai");
+    run_one_case(client, R"({"arg0":[1,2]})", "method_ai");
+    run_one_case(client, R"({"arg0":[1,2,3,4,5,6,7,8,9]})", "method_ai");
+    run_one_case(client, R"({"arg0":[]})", "method_ai");
   }
   SECTION("method isa{si}") {
     std::string request = R"({"arg0":123,"arg1":"hello","arg2":{"Alic":23,"Bob":45}})";

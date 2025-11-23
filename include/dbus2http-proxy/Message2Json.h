@@ -28,14 +28,14 @@ class Message2Json {
   }
 
   template <typename T>
-  static T get_int(sdbus::MethodReply method_reply) {
+  static T get_int(sdbus::MethodReply& method_reply) {
     T result;
     method_reply >> result;
     return result;
   }
 
   static nlohmann::json ExtractMethod(sdbus::MethodReply& method_reply,
-                                       const std::string& sig) {
+                                      const std::string& sig) {
     std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
     if (complete_sigs.size() > 1) {
       nlohmann::json result = nlohmann::json::array();
@@ -88,11 +88,11 @@ class Message2Json {
           nlohmann::json result;
           std::string array_sig = sig.substr(1);
           std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
-          std::cout << "enter container" << std::endl;
+          std::cout << "enter container " << array_sig << std::endl;
           method_reply.enterContainer(array_sig.c_str());
           std::cout << "entered container" << std::endl;
           while (method_reply.enterDictEntry(element_sig.c_str())) {
-            std::cout << "entered dict" << std::endl;
+            std::cout << "entered dict " << element_sig << std::endl;
             nlohmann::json key;
             std::cout << "extract key" << std::endl;
             key = ExtractMethod(method_reply, element_sig.substr(0, 1));
@@ -106,8 +106,10 @@ class Message2Json {
             else if (key.is_string())
               key_str = key.get<std::string>();
             std::cout << "extracted key: " << key_str << std::endl;
-            result[key_str] = ExtractMethod(method_reply, element_sig.substr(1));
-            std::cout << "extracted value" << result[key_str].dump() << std::endl;
+            result[key_str] =
+                ExtractMethod(method_reply, element_sig.substr(1));
+            std::cout << "extracted value" << result[key_str].dump()
+                      << std::endl;
             method_reply.exitDictEntry();
             std::cout << "exited dict entry" << std::endl;
           }
@@ -119,14 +121,36 @@ class Message2Json {
           nlohmann::json result = nlohmann::json::array();
           std::string array_sig = sig.substr(1);
           std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
+          std::cout << "enter container " << array_sig << std::endl;
           method_reply.enterContainer(array_sig.c_str());
-          while (method_reply)
-            result.push_back(ExtractMethod(method_reply, element_sig.substr(1)));
+          while (true) {
+            nlohmann::json value = ExtractMethod(method_reply, element_sig.substr(1));
+            if (method_reply)
+              result.push_back(value);
+            else
+              break;
+          }
           method_reply.clearFlags();
           method_reply.exitContainer();
           return result;
         }
-        throw std::invalid_argument("Invalid array signature: " + sig);
+        {  // single charactor array
+          nlohmann::json result = nlohmann::json::array();
+          std::string element_sig = sig.substr(1);
+          std::cout << "enter container " << element_sig << std::endl;
+          method_reply.enterContainer(element_sig.c_str());
+          while (true) {
+            nlohmann::json value = ExtractMethod(method_reply, element_sig);
+            if (method_reply)
+              result.push_back(value);
+            else
+              break;
+          }
+          method_reply.clearFlags();
+          std::cout << "exit container " << element_sig << std::endl;
+          method_reply.exitContainer();
+          return result;
+        }
 
       case '\0':  // invalid
       case 'h':   // unix file descriptor

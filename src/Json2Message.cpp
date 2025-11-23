@@ -161,8 +161,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
           else if (current_sig[1] == '(')  // array
             for (const auto& j : json) FillMethodSig(method_call, j, array_sig);
           else
-            throw std::invalid_argument("Invalid array signature: " +
-                                        current_sig);
+            for (const auto& j : json) FillMethodSig(method_call, j, array_sig);
           std::cout << "close container: " << array_sig << std::endl;
           method_call.closeContainer();
         } else {
