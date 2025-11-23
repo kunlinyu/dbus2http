@@ -8,18 +8,18 @@
 namespace dbus2http {
 
 ExampleService::ExampleService(sdbus::IConnection& connection)
-    : AdaptorInterfaces(connection, sdbus::ObjectPath(kObjectPath)) {
+    : AdaptorInterfaces(connection, sdbus::ObjectPath(kExamleObjectPath)) {
   registerAdaptor();
   getObject()
       .addVTable(sdbus::registerMethod("Method0").implementedAs(
           [] { return Method0(); }))
-      .forInterface(kInterfaceName);
+      .forInterface(kExampleInterfaceName);
   getObject()
       .addVTable(sdbus::registerMethod("Method1")
                      .withInputParamNames("age")
                      .withOutputParamNames("valid")
                      .implementedAs([](int32_t age) { return Method1(age); }))
-      .forInterface(kInterfaceName);
+      .forInterface(kExampleInterfaceName);
   getObject()
       .addVTable(
           sdbus::registerMethod("Method2")
@@ -33,7 +33,7 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
                                       std::map<std::string, bool>>& arg2) {
                     return Method2(arg1, arg2);
                   }))
-      .forInterface(kInterfaceName);
+      .forInterface(kExampleInterfaceName);
   getObject()
       .addVTable(sdbus::registerMethod("Method3")
                      .withInputParamNames("config")
@@ -41,7 +41,7 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
                      .implementedAs([](const sdbus::Variant& config) {
                        return Method3(config);
                      }))
-      .forInterface(kInterfaceName);
+      .forInterface(kExampleInterfaceName);
 }
 
 void ExampleService::Method0() { std::cout << "Method0" << std::endl; }

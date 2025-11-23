@@ -8,6 +8,7 @@
 
 #include "dbus2http-proxy/DbusCaller.h"
 #include "dbus2http-proxy/DbusEnumerator.h"
+#include "dbus2http-proxy/EchoService.h"
 #include "dbus2http-proxy/ExampleService.h"
 #include "dbus2http-proxy/WebService.h"
 
@@ -18,13 +19,11 @@ static void handle_sigint(int) { g_running.store(false); }
 void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
   try {
     dbus2http::ExampleService service(*connection);
-    std::cout << "service launched" << std::endl;
+    dbus2http::EchoService service2(*connection);
 
     connection->enterEventLoop();
-    connection->leaveEventLoop();
   } catch (const sdbus::Error& e) {
-    std::cerr << e.what() << std::endl;
-
+    std::cerr << "example service launch failed: " <<  e.what() << std::endl;
   }
 }
 
@@ -33,16 +32,18 @@ int main() {
   std::signal(SIGTERM, handle_sigint);
 
   const auto conn = sdbus::createSessionBusConnection(
-      sdbus::ServiceName(dbus2http::kServiceName));
+      sdbus::ServiceName(dbus2http::kExampleServiceName));
 
   std::thread dbus_thread([&conn] { RunExample(conn); });
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
   dbus2http::InterfaceContext context;
   dbus2http::DbusEnumerator dbusEnumerator(context);
   auto service_names = dbus2http::DbusEnumerator::list_services();
   nlohmann::json all;
   for (const auto& service_name : service_names) {
-    if (service_name != "com.example.ServiceName") continue;
+    if (service_name != "com.example.ServiceName" and service_name != "com.test.ServiceName") continue;
+    std::cout << service_name << std::endl;
     std::vector<dbus2http::ObjectPath> object_paths =
         dbusEnumerator.parse_object_paths_recursively(service_name, "/");
     object_paths.erase(std::remove_if(object_paths.begin(), object_paths.end(),
@@ -55,6 +56,7 @@ int main() {
     all["services"][service_name] = j;
     all["interfaces"] = context.interfaces;
   }
+  std::cout << all["interfaces"].dump(2) << std::endl;
 
   // Start web service in background
   dbus2http::WebService web_service(context);
@@ -79,18 +81,18 @@ int main() {
           "valid": true
         }
       )";
-    auto res = client.Post(
-        "/dbus/com.example.ServiceName/path/to/object/"
-        "com.example.InterfaceName.Method2", request
-        , {"Content-Type: application/json"});
-    if (res && res->status == 200) {
-      std::cout << "dbus Method called." << std::endl;
-      std::cout << "Response:\n" << res->body << std::endl;
-    } else {
-      std::cerr << "dbus Method call failed." << std::endl;
-    }
+    // auto res = client.Post(
+    //     "/dbus/com.example.ServiceName/path/to/object/"
+    //     "com.example.InterfaceName.Method2", request
+    //     , {"Content-Type: application/json"});
+    // if (res && res->status == 200) {
+    //   std::cout << "dbus Method called." << std::endl;
+    //   std::cout << "Response:\n" << res->body << std::endl;
+    // } else {
+    //   std::cerr << "dbus Method call failed." << std::endl;
+    // }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   }
 
   std::cout << "Stopping WebService...\n";

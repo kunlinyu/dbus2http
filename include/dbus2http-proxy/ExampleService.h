@@ -9,9 +9,9 @@
 
 namespace dbus2http {
 
-const std::string kInterfaceName = "com.example.InterfaceName";
-const std::string kServiceName = "com.example.ServiceName";
-const std::string kObjectPath = "/path/to/object";
+const std::string kExampleServiceName = "com.example.ServiceName";
+const std::string kExampleInterfaceName = "com.example.InterfaceName";
+const std::string kExamleObjectPath = "/path/to/object";
 
 class ExampleService
     : public sdbus::AdaptorInterfaces<sdbus::Properties_adaptor> {
