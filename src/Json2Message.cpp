@@ -21,7 +21,8 @@ void Json2Message::FillDictToMethod(sdbus::MethodCall& method_call,
                                     const std::string& key,
                                     const nlohmann::json& json,
                                     const std::string& sig) {
-  if (sig.size() != 2)
+  std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
+  if (complete_sigs.size() != 2)
     throw std::invalid_argument("Expected signature length 2 but we get :" +
                                 sig);
   char key_sig = sig.front();
@@ -77,9 +78,12 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
   PLOGD << "FillmethodSig: " << json.dump() << " " << sig;
   std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
-    if (not json.is_array())
-      throw std::invalid_argument("Expected array type but we get :" +
-                                  std::string(json.type_name()));
+    if (not json.is_array()) {
+      std::string err_msg =
+          "Expected array type but we get :" + std::string(json.type_name());
+      PLOGE << err_msg;
+      throw std::invalid_argument(err_msg);
+    }
     if (json.size() != complete_sigs.size())
       throw std::invalid_argument(
           "Expected array size " + std::to_string(complete_sigs.size()) +
@@ -151,8 +155,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
               method_call.openDictEntry(element_sig.c_str());
 
               PLOGD << "dict opened";
-              PLOGD << "extract " << value.dump() << " from " << json.dump()
-                       ;
+              PLOGD << "extract " << value.dump() << " from " << json.dump();
               FillDictToMethod(method_call, key, value, element_sig);
               PLOGD << "close dict entry " << element_sig;
               method_call.closeDictEntry();
@@ -165,8 +168,10 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
           PLOGD << "close container: " << array_sig;
           method_call.closeContainer();
         } else {
-          throw std::invalid_argument("Expected array type but we get :" +
-                                      std::string(json.type_name()));
+          std::string err_msg =
+                    "Expected array type but we get :" + std::string(json.type_name());
+          PLOGE << err_msg;
+          throw std::invalid_argument(err_msg);
         }
 
         break;

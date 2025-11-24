@@ -2,6 +2,9 @@
 // Created by yukunlin on 11/22/25.
 //
 
+#include <plog/Appenders/ConsoleAppender.h>
+#include <plog/Formatters/TxtFormatter.h>
+#include <plog/Init.h>
 #include <sdbus-c++/sdbus-c++.h>
 
 #include <catch2/catch_test_macros.hpp>
@@ -10,6 +13,7 @@
 
 #include "dbus2http-proxy/Dbus2Http.h"
 #include "dbus2http-proxy/EchoService.h"
+#include "dbus2http-proxy/FileLineFormatter.h"
 
 namespace dbus2http {
 
@@ -22,34 +26,44 @@ void run_one_case(httplib::Client& client, const std::string& request,
     for (int i = 0; i < 5; i++) {
       res = client.Post(
           "/dbus/com.test.ServiceName/path/to/object/"
-          "com.test.InterfaceName." + method_name,
-          request, {"Content-Type: application/json"});
+          "com.test.InterfaceName." +
+              method_name,
+          request, {"Content-Type: application/json"},
+          [&](size_t current, size_t total) {
+            PLOGI << "upload progress: " << current << "/" << total;
+            return true;
+          });
       if (res) break;
       PLOGI << "retry";
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      std::this_thread::sleep_for(std::chrono::milliseconds(10 * i));
     }
     PLOGI << "post reply";
   } catch (const std::exception& e) {
     PLOGE << "failed to send http request to echo service: " << e.what();
   }
 
-
   if (res) {
     PLOGI << res->status;
-    if (res->status == 200)
+    if (res->status == 200) {
       PLOGI << res->body;
-    else
-      PLOGE << res->status;
+    }
   } else {
     PLOGE << "request failed: " << res.error();
   }
 
   REQUIRE(res);
   REQUIRE(res->status == 200);
-  REQUIRE(res->body == request);
+  nlohmann::json req_j = nlohmann::json::parse(request);
+  REQUIRE(res->body == req_j.dump());
 }
-
+static plog::ConsoleAppender<FileLineFormatter> consoleAppender;
+bool first = true;
 TEST_CASE("call methods", "[i][i]") {
+  if (first) {
+    plog::init(plog::info, &consoleAppender);
+    first = false;
+  }
+
   const auto conn = sdbus::createSessionBusConnection(
       sdbus::ServiceName(dbus2http::kEchoServiceName));
   std::thread dbus_thread([&conn] {
@@ -63,7 +77,7 @@ TEST_CASE("call methods", "[i][i]") {
   });
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  Dbus2Http dbus2http({"com.test" }, false);
+  Dbus2Http dbus2http({"com.test"}, false);
   try {
     dbus2http.start(8080);
   } catch (const std::exception& e) {
@@ -131,19 +145,42 @@ TEST_CASE("call methods", "[i][i]") {
     run_one_case(client, "{\"arg0\":[]}", "method_ai");
   }
   SECTION("method a(is)") {
-    run_one_case(client, "{\"arg0\":[[1,\"hello\"],[2,\"world\"]]}", "method_aSisS");
+    run_one_case(client, "{\"arg0\":[[1,\"hello\"],[2,\"world\"]]}",
+                 "method_aSisS");
   }
   SECTION("method a(bynqiuxtds)") {
+    std::string request;
+    request =
+        "{\"arg0\":[[true,1,1,1,1,1,1,1,1.1,\"hello\"],[false,0,0,0,0,0,0,0,0."
+        "1,\"让我们说中文\"]]}";
+    run_one_case(client, request, "method_aSbynqiuxtdsS");
   }
   SECTION("method a{ss}") {
+    run_one_case(client, "{\"arg0\":{\"key1\":\"hello\",\"key2\":\"world\"}}",
+                 "method_aDssD");
+    run_one_case(client, "{\"arg0\":{\"key_a\":\"你好\",\"key_b\":\"世界\"}}",
+                 "method_aDssD");
   }
   SECTION("method a{ii}") {
+    run_one_case(client, "{\"arg0\":{\"1\":2,\"3\":4}}", "method_aDiiD");
+    run_one_case(client, "{\"arg0\":{\"-1\":-2,\"-3\":-4}}", "method_aDiiD");
   }
   SECTION("method isa{si}") {
-    std::string request = R"({"arg0":123,"arg1":"hello","arg2":{"Alic":23,"Bob":45}})";
+    std::string request =
+        R"({"arg0":123,"arg1":"hello","arg2":{"Alic":23,"Bob":45}})";
     run_one_case(client, request, "method_isaDsiD");
   }
   SECTION("method ia{i(ssa(iia{ss}))}") {
+    std::string request = R"(
+{
+  "arg0":123,
+  "arg1": {
+    "0":["hello", "world", [ [1, 2, {"key": "value"}], [3, 4, {"你好": "世界"}] ] ],
+    "1":["hello", "world", [ [1, 2, {"key": "value"}], [3, 4, {"你好": "世界"}] ] ]
+  }
+}
+)";
+    run_one_case(client, request, "method_iaDiSssaSiiaDssDSSD");
   }
   dbus2http.stop();
   conn->leaveEventLoop();
