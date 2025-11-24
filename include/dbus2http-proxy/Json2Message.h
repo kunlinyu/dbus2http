@@ -42,7 +42,7 @@ class Json2Message {
   static void AppendIntegerFromJson(sdbus::MethodCall& method_call,
                                     const nlohmann::json& json) {
     if (json.is_number_integer()) {
-      PLOGI << "typed append " << std::string(typeid(T).name()) << " "
+      PLOGD << "typed append " << std::string(typeid(T).name()) << " "
             << json.dump();
       method_call << json.get<T>();
     } else

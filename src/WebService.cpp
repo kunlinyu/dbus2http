@@ -2,6 +2,7 @@
 // Created by yukunlin on 11/22/25.
 //
 #include <dbus2http-proxy/WebService.h>
+#include <dbus2http-proxy/entity/DbusSerialization.h>
 
 namespace dbus2http {
 
@@ -52,14 +53,47 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
               [](const httplib::Request& req, httplib::Response& res) {
                 res.set_content("hello world", "text/plain");
               });
-
-  // Replace the simple "/dbus/" handler with a wildcard handler that parses
-  // paths like:
-  // /dbus/<service_name>/<object_path...>/<interface_name>/<method>
+  server_.Get(
+      "/dbus", [this](const httplib::Request& req, httplib::Response& res) {
+        nlohmann::json j;
+        j["services"] = nlohmann::json::array();
+        for (const auto& [service_name, _] : caller_.context().object_paths) {
+          j["services"].push_back(service_name);
+        }
+        res.set_content(j.dump(), "application/json");
+      });
+  server_.Get(R"(/dbus/interface/.*)",
+              [this](const httplib::Request& req, httplib::Response& res) {
+                std::string suffix = req.path.substr(16);
+                if (suffix.find('/') == std::string::npos) {
+                  std::string interface_name = suffix;
+                  if (caller_.context().interfaces.contains(interface_name)) {
+                    nlohmann::json j =
+                        caller_.context().interfaces.at(interface_name);
+                    res.set_content(j.dump(2), "application/json");
+                  } else {
+                    res.status = 404;
+                    res.set_content("interface not found", "text/plain");
+                  }
+                }
+              });
+  server_.Get(R"(/dbus/service/.*)", [this](const httplib::Request& req,
+                                    httplib::Response& res) {
+    std::string suffix = req.path.substr(14);
+    if (suffix.find('/') == std::string::npos) {
+      std::string service_name = suffix;
+      if (caller_.context().object_paths.contains(service_name)) {
+        nlohmann::json j = caller_.context().object_paths.at(service_name);
+        res.set_content(j.dump(2), "application/json");
+      } else {
+        res.status = 404;
+        res.set_content("service not found", "text/plain");
+      }
+    }
+  });
   server_.Post(R"(/dbus/.*)", [this](const httplib::Request& req,
                                      httplib::Response& res) {
     PLOGD << "in post";
-    ;
     std::string service_name, object_path, interface_name, method;
     if (!parse_dbus_request_path(req.path, service_name, object_path,
                                  interface_name, method)) {
@@ -78,7 +112,6 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       return;
     }
 
-    // Provide extracted values and leave the rest to the user
     PLOGD << "service_name: " << service_name;
     PLOGD << "object_path: " << object_path;
     PLOGD << "interface_name: " << interface_name;

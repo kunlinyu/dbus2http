@@ -11,10 +11,12 @@
 #include "method.h"
 #include "property.h"
 #include "signal.h"
+#include "object_path.h"
 
 namespace dbus2http {
 
 struct InterfaceContext {
+  std::map<std::string, std::map<std::string, ObjectPath>> object_paths;
   std::map<std::string, std::map<std::string, Method>> methods;
   std::map<std::string, std::map<std::string, Signal>> signals;
   std::map<std::string, std::map<std::string, Property>> properties;

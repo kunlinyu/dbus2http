@@ -11,7 +11,6 @@ struct ObjectPath {
   std::vector<std::string> interfaces;
   std::vector<std::string> children_paths;
 
-
   ObjectPath() = default;
   explicit ObjectPath(const std::string& path) : path(path) {}
 

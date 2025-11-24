@@ -32,7 +32,8 @@ class DbusEnumerator {
     ObjectPath object = DbusSerialization::parse_single_object_path(xml, path, context_);
     std::vector<ObjectPath> result;
     result.emplace_back(object);
-    PLOGI << "  " << object.path;
+    context_.object_paths[service_name][object.path] = object;
+    PLOGI << service_name << "  " << object.path;
     for (const auto& child : object.children_paths) {
       std::string child_path = path + (path == "/" ? "" : "/") + child;
       std::vector<ObjectPath> child_ops =

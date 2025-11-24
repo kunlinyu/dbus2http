@@ -3,6 +3,7 @@
 //
 #pragma once
 #include <plog/Log.h>
+
 #include "DbusEnumerator.h"
 #include "WebService.h"
 #include "entity/InterfaceContext.h"
@@ -17,25 +18,27 @@ class Dbus2Http {
   std::set<std::string> service_prefixes_;
 
   std::thread service_thread_;
-public:
-  Dbus2Http(const std::vector<std::string>& service_prefixes, bool system) : system_(system) {
+
+ public:
+  Dbus2Http(const std::vector<std::string>& service_prefixes, bool system)
+      : system_(system) {
     service_prefixes_.insert(service_prefixes.begin(), service_prefixes.end());
   }
 
   void start(int port) {
     DbusEnumerator dbusEnumerator(context_);
-    auto service_names = dbus2http::DbusEnumerator::list_services();
+    auto service_names = DbusEnumerator::list_services();
     for (const auto& service_name : service_names) {
       if (not match_prefix(service_name)) continue;
       PLOGI << "servcie name: " << service_name;
       PLOGI << "object paths: ";
       std::vector<ObjectPath> object_paths =
           dbusEnumerator.parse_object_paths_recursively(service_name, "/");
-      object_paths.erase(std::remove_if(object_paths.begin(), object_paths.end(),
-                                        [](const dbus2http::ObjectPath& op) {
-                                          return op.interfaces.empty();
-                                        }),
-                         object_paths.end());
+      object_paths.erase(
+          std::remove_if(
+              object_paths.begin(), object_paths.end(),
+              [](const ObjectPath& op) { return op.interfaces.empty(); }),
+          object_paths.end());
       nlohmann::json j;
       for (const auto& op : object_paths) j[op.path] = op;
     }
@@ -53,7 +56,7 @@ public:
     PLOGI << "httplib service stopped.";
   }
 
-private:
+ private:
   bool match_prefix(const std::string& service_name) {
     if (service_prefixes_.empty()) return true;
     for (const auto& prefix : service_prefixes_) {
@@ -61,7 +64,6 @@ private:
     }
     return false;
   }
-
 };
 
-}
+}  // namespace dbus2http
