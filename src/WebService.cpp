@@ -43,11 +43,15 @@ bool WebService::parse_dbus_request_path(const std::string& path,
   return true;
 }
 
-WebService::WebService(const InterfaceContext& context)
-    : caller_(context) {
+WebService::WebService(DbusCaller& caller)
+    : caller_(caller) {
   server_.Post("/echo",
                [](const httplib::Request& req, httplib::Response& res) {
-                 res.set_content("echo", "text/plain");
+                 res.set_content(req.body, "text/plain");
+               });
+  server_.Get("/hello",
+               [](const httplib::Request& req, httplib::Response& res) {
+                 res.set_content("hello world", "text/plain");
                });
 
   // Replace the simple "/dbus/" handler with a wildcard handler that parses

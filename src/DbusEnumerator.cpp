@@ -5,16 +5,19 @@
 #include <dbus2http-proxy/DbusEnumerator.h>
 #include <sdbus-c++/sdbus-c++.h>
 
-#include <exception>
 #include <algorithm>
-#include <vector>
+#include <exception>
 #include <string>
+#include <vector>
+
+#include "dbus2http-proxy/DbusUtils.h"
 
 namespace dbus2http {
 
 std::vector<std::string> DbusEnumerator::list_services() {
   try {
     auto connection = sdbus::createSessionBusConnection();
+
     auto proxy = sdbus::createProxy(*connection,
                                     sdbus::ServiceName("org.freedesktop.DBus"),
                                     sdbus::ObjectPath("/org/freedesktop/DBus"));

@@ -10,6 +10,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+#include "DbusUtils.h"
 #include "Json2Message.h"
 #include "Message2Json.h"
 #include "entity/InterfaceContext.h"
@@ -21,8 +22,8 @@ class DbusCaller {
   const InterfaceContext& context_;
 
  public:
-  explicit DbusCaller(const InterfaceContext& context) : context_(context) {
-    conn_ = sdbus::createSessionBusConnection();
+  explicit DbusCaller(const InterfaceContext& context, bool system) : context_(context) {
+    conn_ = DbusUtils::createConnection(system);
   }
 
   [[nodiscard]] nlohmann::json Call(const std::string& service_name, const std::string& object_path,

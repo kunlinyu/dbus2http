@@ -13,10 +13,10 @@ namespace dbus2http {
 
 class WebService {
   httplib::Server server_;
-  DbusCaller caller_;
+  DbusCaller& caller_;
 
  public:
-  explicit WebService(const InterfaceContext& context);
+  explicit WebService(DbusCaller& caller);
 
   void run(int port) {
     server_.listen("0.0.0.0", port);

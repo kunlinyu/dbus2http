@@ -2,6 +2,8 @@
 # To keep your changes, remove these comment lines, but the plugin won't be able to modify your requirements
 
 requirements:
+  - "plog/1.1.10"
+  - "argparse/3.2"
   - "catch2/3.11.0"
   - "tinyxml2/11.0.0"
   - "sdbus-cpp/2.0.0"

@@ -63,9 +63,9 @@ TEST_CASE("call methods", "[i][i]") {
   });
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  Dbus2Http dbus2http;
+  Dbus2Http dbus2http({"com.test" }, false);
   try {
-    dbus2http.start();
+    dbus2http.start(8080);
   } catch (const std::exception& e) {
     std::cerr << "start dbus2http failed: " << e.what() << std::endl;
   }

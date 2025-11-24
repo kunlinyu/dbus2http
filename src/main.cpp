@@ -1,3 +1,9 @@
+#include <plog/Appenders/ConsoleAppender.h>
+#include <plog/Formatters/TxtFormatter.h>
+#include <plog/Initializers/ConsoleInitializer.h>
+#include <plog/Log.h>
+
+#include <argparse/argparse.hpp>
 #include <atomic>
 #include <chrono>
 #include <csignal>
@@ -6,8 +12,7 @@
 #include <nlohmann/json.hpp>
 #include <thread>
 
-#include "dbus2http-proxy/DbusCaller.h"
-#include "dbus2http-proxy/DbusEnumerator.h"
+#include "dbus2http-proxy/Dbus2Http.h"
 #include "dbus2http-proxy/EchoService.h"
 #include "dbus2http-proxy/ExampleService.h"
 #include "dbus2http-proxy/WebService.h"
@@ -23,11 +28,46 @@ void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
 
     connection->enterEventLoop();
   } catch (const sdbus::Error& e) {
-    std::cerr << "example service launch failed: " <<  e.what() << std::endl;
+    std::cerr << "example service launch failed: " << e.what() << std::endl;
   }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+  argparse::ArgumentParser program("dbus2http");
+  program.add_description("A D-Bus to HTTP proxy server.");
+  program.add_argument("-p", "--port")
+      .help("Port to listen on")
+      .nargs(1)
+      .default_value(8080)
+      .scan<'i', int>();
+  program.add_argument("--system")
+      .help("Use system bus")
+      .default_value(false)
+      .implicit_value(true);
+  program.add_argument("--service_prefix")
+      .nargs(argparse::nargs_pattern::at_least_one)
+      .help("Only expose services with the given prefix");
+
+  static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
+
+  // 初始化日志系统
+  plog::init(plog::debug, &consoleAppender);
+
+  try {
+    program.parse_args(argc, argv);
+  } catch (const std::exception& e) {
+    PLOGE << "argument parsing error: " << e.what() << std::endl << program;
+    return 1;
+  }
+
+  auto service_prefix =
+      program.get<std::vector<std::string>>("--service_prefix");
+  for (const auto& prefix : service_prefix) {
+    PLOGI << "prefix: " << prefix << std::endl;
+  }
+  PLOGI << "port: " << program.get<int>("--port");
+  PLOGI << "system bus: " << std::to_string(program.get<bool>("--system"));
+
   std::signal(SIGINT, handle_sigint);
   std::signal(SIGTERM, handle_sigint);
 
@@ -37,78 +77,21 @@ int main() {
   std::thread dbus_thread([&conn] { RunExample(conn); });
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  dbus2http::InterfaceContext context;
-  dbus2http::DbusEnumerator dbusEnumerator(context);
-  auto service_names = dbus2http::DbusEnumerator::list_services();
-  nlohmann::json all;
-  for (const auto& service_name : service_names) {
-    if (service_name != "com.example.ServiceName" and service_name != "com.test.ServiceName") continue;
-    std::cout << service_name << std::endl;
-    std::vector<dbus2http::ObjectPath> object_paths =
-        dbusEnumerator.parse_object_paths_recursively(service_name, "/");
-    object_paths.erase(std::remove_if(object_paths.begin(), object_paths.end(),
-                                      [](const dbus2http::ObjectPath& op) {
-                                        return op.interfaces.empty();
-                                      }),
-                       object_paths.end());
-    nlohmann::json j;
-    for (const auto& op : object_paths) j[op.path] = op;
-    all["services"][service_name] = j;
-    all["interfaces"] = context.interfaces;
-  }
-  std::cout << all["interfaces"].dump(2) << std::endl;
+  dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));
+  dbus2http.start(program.get<int>("--port"));
 
-  // Start web service in background
-  dbus2http::WebService web_service(context);
-  std::thread server_thread([&web_service] { web_service.run(8080); });
-  std::cout << "WebService listening on port 8080. Press Ctrl+C to stop.\n";
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   while (g_running.load()) {
-    httplib::Client client("http://localhost:8080");
-    std::string request = R"(
-        {
-          "name": "Charlie",
-          "name2age": {
-            "Alice": 17,
-            "Bob": 18
-          },
-          "name2valid": {
-            "Alice": true,
-            "Bob": false
-          },
-          "num": 123,
-          "valid": true
-        }
-      )";
-    // auto res = client.Post(
-    //     "/dbus/com.example.ServiceName/path/to/object/"
-    //     "com.example.InterfaceName.Method2", request
-    //     , {"Content-Type: application/json"});
-    // if (res && res->status == 200) {
-    //   std::cout << "dbus Method called." << std::endl;
-    //   std::cout << "Response:\n" << res->body << std::endl;
-    // } else {
-    //   std::cerr << "dbus Method call failed." << std::endl;
-    // }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
 
-  std::cout << "Stopping WebService...\n";
-  web_service.stop();
-  if (server_thread.joinable()) server_thread.join();
-  std::cout << "Stopped WebService.\n";
+  PLOGI << "Stopping dbus2http...";
+  dbus2http.stop();
+  PLOGI << "dbus2http stopped.";
 
-  std::cout << "Stopping D-Bus example service...\n";
+  PLOGI << "Stopping D-Bus example service...";
   conn->leaveEventLoop();
   if (dbus_thread.joinable()) dbus_thread.join();
-  std::cout << "Stopped D-Bus example service.\n";
-
-  // save all into a file
-  std::ofstream fout("dbus_structure.json");
-  if (fout.is_open()) fout << all.dump(2);
-  fout.close();
+  PLOGI << "D-Bus example service stopped.";
 
   return 0;
 }
