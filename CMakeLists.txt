@@ -13,6 +13,8 @@ find_package(plog REQUIRED)
 
 include_directories(include)
 
+add_compile_definitions(PLOG_CAPTURE_FILE)
+
 add_library(libdbus2http
         src/DbusEnumerator.cpp
         src/DbusSerialization.cpp

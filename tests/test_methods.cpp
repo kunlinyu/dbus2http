@@ -16,32 +16,32 @@ namespace dbus2http {
 void run_one_case(httplib::Client& client, const std::string& request,
                   const std::string& method_name) {
   httplib::Result res;
-  std::cout << "run one case" << std::endl;
+  PLOGI << "run one case";
   try {
-    std::cout << "run post" << std::endl;
+    PLOGI << "run post";
     for (int i = 0; i < 5; i++) {
       res = client.Post(
           "/dbus/com.test.ServiceName/path/to/object/"
           "com.test.InterfaceName." + method_name,
           request, {"Content-Type: application/json"});
       if (res) break;
-      std::cout << "retry" << std::endl;
+      PLOGI << "retry";
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    std::cout << "post reply" << std::endl;
+    PLOGI << "post reply";
   } catch (const std::exception& e) {
-    std::cerr << "failed to send http request to echo service: " << e.what() << std::endl;
+    PLOGE << "failed to send http request to echo service: " << e.what();
   }
 
 
   if (res) {
-    std::cout << res->status << std::endl;
+    PLOGI << res->status;
     if (res->status == 200)
-      std::cout << res->body << std::endl;
+      PLOGI << res->body;
     else
-      std::cerr << res->status << std::endl;
+      PLOGE << res->status;
   } else {
-    std::cerr << "request failed: " << res.error() << std::endl;
+    PLOGE << "request failed: " << res.error();
   }
 
   REQUIRE(res);
@@ -58,7 +58,7 @@ TEST_CASE("call methods", "[i][i]") {
 
       conn->enterEventLoop();
     } catch (const sdbus::Error& e) {
-      std::cerr << "echo service launch faild: " << e.what() << std::endl;
+      PLOGE << "echo service launch faild: " << e.what();
     };
   });
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -67,10 +67,10 @@ TEST_CASE("call methods", "[i][i]") {
   try {
     dbus2http.start(8080);
   } catch (const std::exception& e) {
-    std::cerr << "start dbus2http failed: " << e.what() << std::endl;
+    PLOGE << "start dbus2http failed: " << e.what();
   }
 
-  std::cout << "new client" << std::endl;
+  PLOGI << "new client";
   httplib::Client client("http://localhost:8080");
   SECTION("method b") {  // boolean
     run_one_case(client, "{\"arg0\":true}", "method_b");

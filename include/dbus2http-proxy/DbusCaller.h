@@ -8,6 +8,8 @@
 #include <sdbus-c++/Types.h>
 
 #include <nlohmann/json.hpp>
+#include <plog/Log.h>
+
 #include <string>
 
 #include "DbusUtils.h"
@@ -34,12 +36,12 @@ class DbusCaller {
     auto method = proxy->createMethodCall(sdbus::InterfaceName(interface_name),
                                           sdbus::MethodName(method_name));
     Method method_type = context_.GetMethod(interface_name, method_name);
-    std::cout << "=====fill method call====" << std::endl;
+    PLOGI << "=====fill method call====";
     Json2Message::FillMethod(
         method, context_.GetMethod(interface_name, method_name), request);
-    std::cout << "=====call====" << std::endl;
+    PLOGI << "=====call====";
     auto reply = proxy->callMethod(method);
-    std::cout << "=====extract method reply====" << std::endl;
+    PLOGI << "=====extract method reply====";
     return Message2Json::ExtractMethod(reply, method_type);
   }
 };

@@ -47,7 +47,7 @@ class Message2Json {
     switch (sig.front()) {
       case 'b':  // boolean
         bool b;
-        std::cout << "extract bool" << std::endl;
+        PLOGD << "extract bool";
         method_reply >> b;
         return b;
       case 'y':  // byte
@@ -57,10 +57,10 @@ class Message2Json {
       case 'q':  // uint16
         return get_int<uint16_t>(method_reply);
       case 'i':  // int32
-        std::cout << "extract int32" << std::endl;
+        PLOGD << "extract int32";
         return get_int<int32_t>(method_reply);
       case 'u':  // uint32
-        std::cout << "extract uint32" << std::endl;
+        PLOGD << "extract uint32";
         return get_int<uint32_t>(method_reply);
       case 'x':  // int64
         return get_int<int64_t>(method_reply);
@@ -69,7 +69,7 @@ class Message2Json {
       case 'd':  // double
         return get_int<double>(method_reply);
       case 's':  // string
-        std::cout << "extract string" << std::endl;
+        PLOGD << "extract string";
         return get_int<std::string>(method_reply);
       case 'v':  // variant
         // TODO: support variant
@@ -89,13 +89,13 @@ class Message2Json {
           nlohmann::json result;
           std::string array_sig = sig.substr(1);
           std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
-          std::cout << "enter container " << array_sig << std::endl;
+          PLOGD << "enter container " << array_sig;
           method_reply.enterContainer(array_sig.c_str());
-          std::cout << "entered container" << std::endl;
+          PLOGD << "entered container";
           while (method_reply.enterDictEntry(element_sig.c_str())) {
-            std::cout << "entered dict " << element_sig << std::endl;
+            PLOGD << "entered dict " << element_sig;
             nlohmann::json key;
-            std::cout << "extract key" << std::endl;
+            PLOGD << "extract key";
             key = ExtractMethod(method_reply, element_sig.substr(0, 1));
             std::string key_str;
             if (key.is_boolean())
@@ -106,13 +106,13 @@ class Message2Json {
               key_str = std::to_string(key.get<double>());
             else if (key.is_string())
               key_str = key.get<std::string>();
-            std::cout << "extracted key: " << key_str << std::endl;
+            PLOGD << "extracted key: " << key_str;
             result[key_str] =
                 ExtractMethod(method_reply, element_sig.substr(1));
-            std::cout << "extracted value" << result[key_str].dump()
-                      << std::endl;
+            PLOGD << "extracted value" << result[key_str].dump()
+                     ;
             method_reply.exitDictEntry();
-            std::cout << "exited dict entry" << std::endl;
+            PLOGD << "exited dict entry";
           }
           method_reply.clearFlags();
           method_reply.exitContainer();
@@ -122,19 +122,19 @@ class Message2Json {
           nlohmann::json result = nlohmann::json::array();
           std::string array_sig = sig.substr(1);
           std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
-          std::cout << "enter container " << array_sig << std::endl;
+          PLOGD << "enter container " << array_sig;
           method_reply.enterContainer(array_sig.c_str());
-          std::cout << "entered container " << array_sig << std::endl;
+          PLOGD << "entered container " << array_sig;
           while (true) {
-            std::cout << "enter struct " << element_sig << std::endl;
+            PLOGD << "enter struct " << element_sig;
             if (not method_reply.enterStruct(element_sig.c_str())) break;
-            std::cout << "entered struct " << element_sig << std::endl;
+            PLOGD << "entered struct " << element_sig;
             nlohmann::json value = ExtractMethod(method_reply, element_sig);
             if (method_reply) {
               result.push_back(value);
-              std::cout << "exit struct " << element_sig << std::endl;
+              PLOGD << "exit struct " << element_sig;
               method_reply.exitStruct();
-              std::cout << "exited struct " << element_sig << std::endl;
+              PLOGD << "exited struct " << element_sig;
             } else
               break;
           }
@@ -145,7 +145,7 @@ class Message2Json {
         {  // single charactor array
           nlohmann::json result = nlohmann::json::array();
           std::string element_sig = sig.substr(1);
-          std::cout << "enter container " << element_sig << std::endl;
+          PLOGD << "enter container " << element_sig;
           method_reply.enterContainer(element_sig.c_str());
           while (true) {
             nlohmann::json value = ExtractMethod(method_reply, element_sig);
@@ -155,7 +155,7 @@ class Message2Json {
               break;
           }
           method_reply.clearFlags();
-          std::cout << "exit container " << element_sig << std::endl;
+          PLOGD << "exit container " << element_sig;
           method_reply.exitContainer();
           return result;
         }

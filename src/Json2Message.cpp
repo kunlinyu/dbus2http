@@ -74,7 +74,7 @@ void Json2Message::FillDictToMethod(sdbus::MethodCall& method_call,
 void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
                                  const nlohmann::json& json,
                                  const std::string& sig) {
-  std::cout << "FillmethodSig: " << json.dump() << " " << sig << std::endl;
+  PLOGD << "FillmethodSig: " << json.dump() << " " << sig;
   std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
     if (not json.is_array())
@@ -91,7 +91,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
     switch (current_sig.front()) {
       case 'b':  // boolean
         if (json.is_boolean()) {
-          std::cout << "append bool " << json.dump() << std::endl;
+          PLOGD << "append bool " << json.dump();
           method_call << json.get<bool>();
         } else
           throw std::invalid_argument("Expected bool type but we get :" +
@@ -120,7 +120,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
         break;
       case 'd':  // double
         if (json.is_number()) {
-          std::cout << "append double " << json.dump() << std::endl;
+          PLOGD << "append double " << json.dump();
           method_call << json.get<double>();
         } else
           throw std::invalid_argument("Expected float type but we get :" +
@@ -128,7 +128,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
         break;
       case 's':  // string
         if (json.is_string()) {
-          std::cout << "append string " << json.dump() << std::endl;
+          PLOGD << "append string " << json.dump();
           method_call << json.get<std::string>();
         } else
           throw std::invalid_argument("Expected float type but we get :" +
@@ -141,28 +141,28 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
         if (json.is_array() || json.is_object()) {
           std::string array_sig = current_sig.substr(1);
           std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
-          std::cout << "open container: " << array_sig << std::endl;
+          PLOGD << "open container: " << array_sig;
           method_call.openContainer(array_sig.c_str());
-          std::cout << "container opened" << std::endl;
+          PLOGD << "container opened";
 
           if (current_sig[1] == '{')  // dict
             for (const auto& [key, value] : json.items()) {
-              std::cout << "open dict entry " << element_sig << std::endl;
+              PLOGD << "open dict entry " << element_sig;
               method_call.openDictEntry(element_sig.c_str());
 
-              std::cout << "dict opened" << std::endl;
-              std::cout << "extract " << value.dump() << " from " << json.dump()
-                        << std::endl;
+              PLOGD << "dict opened";
+              PLOGD << "extract " << value.dump() << " from " << json.dump()
+                       ;
               FillDictToMethod(method_call, key, value, element_sig);
-              std::cout << "close dict entry " << element_sig << std::endl;
+              PLOGD << "close dict entry " << element_sig;
               method_call.closeDictEntry();
-              std::cout << "dict closed" << std::endl;
+              PLOGD << "dict closed";
             }
           else if (current_sig[1] == '(')  // array
             for (const auto& j : json) FillMethodSig(method_call, j, array_sig);
           else
             for (const auto& j : json) FillMethodSig(method_call, j, array_sig);
-          std::cout << "close container: " << array_sig << std::endl;
+          PLOGD << "close container: " << array_sig;
           method_call.closeContainer();
         } else {
           throw std::invalid_argument("Expected array type but we get :" +
@@ -173,10 +173,10 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
       case '(':  // struct
       {
         std::string element_sig = current_sig.substr(1, current_sig.size() - 2);
-        std::cout << "open struct " << element_sig << std::endl;
+        PLOGD << "open struct " << element_sig;
         method_call.openStruct(element_sig.c_str());
         FillMethodSig(method_call, json, element_sig);
-        std::cout << "close struct " << current_sig << std::endl;
+        PLOGD << "close struct " << current_sig;
         method_call.closeStruct();
       } break;
       default:;

@@ -6,10 +6,10 @@
 namespace dbus2http {
 
 bool WebService::parse_dbus_request_path(const std::string& path,
-                                                std::string& service_name,
-                                                std::string& object_path,
-                                                std::string& interface_name,
-                                                std::string& method) {
+                                         std::string& service_name,
+                                         std::string& object_path,
+                                         std::string& interface_name,
+                                         std::string& method) {
   const std::string prefix = "/dbus/";
   if (path.size() <= prefix.size() ||
       path.compare(0, prefix.size(), prefix) != 0) {
@@ -43,27 +43,27 @@ bool WebService::parse_dbus_request_path(const std::string& path,
   return true;
 }
 
-WebService::WebService(DbusCaller& caller)
-    : caller_(caller) {
+WebService::WebService(DbusCaller& caller) : caller_(caller) {
   server_.Post("/echo",
                [](const httplib::Request& req, httplib::Response& res) {
                  res.set_content(req.body, "text/plain");
                });
   server_.Get("/hello",
-               [](const httplib::Request& req, httplib::Response& res) {
-                 res.set_content("hello world", "text/plain");
-               });
+              [](const httplib::Request& req, httplib::Response& res) {
+                res.set_content("hello world", "text/plain");
+              });
 
   // Replace the simple "/dbus/" handler with a wildcard handler that parses
   // paths like:
   // /dbus/<service_name>/<object_path...>/<interface_name>/<method>
   server_.Post(R"(/dbus/.*)", [this](const httplib::Request& req,
                                      httplib::Response& res) {
-    std::cout << "in post" << std::endl;
+    PLOGD << "in post";
+    ;
     std::string service_name, object_path, interface_name, method;
     if (!parse_dbus_request_path(req.path, service_name, object_path,
                                  interface_name, method)) {
-      std::cerr << "parse error" << std::endl;
+      PLOGE << "parse error";
       res.status = 400;
       res.set_content("invalid or incomplete dbus path", "text/plain");
       return;
@@ -79,10 +79,10 @@ WebService::WebService(DbusCaller& caller)
     }
 
     // Provide extracted values and leave the rest to the user
-    std::cout << "service_name: " << service_name << "\n";
-    std::cout << "object_path: " << object_path << "\n";
-    std::cout << "interface_name: " << interface_name << "\n";
-    std::cout << "method: " << method << "\n";
+    PLOGD << "service_name: " << service_name;
+    PLOGD << "object_path: " << object_path;
+    PLOGD << "interface_name: " << interface_name;
+    PLOGD << "method: " << method;
     try {
       nlohmann::json response = caller_.Call(service_name, object_path,
                                              interface_name, method, request);
@@ -90,27 +90,27 @@ WebService::WebService(DbusCaller& caller)
     } catch (const std::exception& e) {
       res.status = 500;
       std::string what = e.what();
-      std::cerr << "exception: " << what << std::endl;
+      PLOGE << "exception: " << what;
       res.set_content(R"({"message": ")" + what + "\"}", "application/json");
     }
-
   });
 
-  server_.set_logger(
-      [](const httplib::Request& req, const httplib::Response& res) {
-        // Timestamp
-        auto now = std::chrono::system_clock::now();
-        std::time_t t = std::chrono::system_clock::to_time_t(now);
-        std::tm tm;
-        localtime_r(&t, &tm);
-        std::ostringstream ts;
-        ts << std::put_time(&tm, "%F %T");
+  server_.set_logger([](const httplib::Request& req,
+                        const httplib::Response& res) {
+    // Timestamp
+    auto now = std::chrono::system_clock::now();
+    std::time_t t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm;
+    localtime_r(&t, &tm);
+    std::ostringstream ts;
+    ts << std::put_time(&tm, "%F %T");
 
-        // Log: [timestamp] client "METHOD path" status body_size
-        std::cout << "[" << ts.str() << "] " << req.remote_addr << " \""
-                  << req.method << " " << req.path << "\" " << res.status << " "
-                  << res.body.substr(0, res.body.size() < 100 ? res.body.size() : 100) << std::endl;
-      });
+    // Log: [timestamp] client "METHOD path" status body_size
+    PLOGI << "[" << ts.str() << "] " << req.remote_addr << " \"" << req.method
+          << " " << req.path << "\" " << res.status << " "
+          << res.body.substr(0, res.body.size() < 100 ? res.body.size() : 100);
+    ;
+  });
 
   server_.set_exception_handler([](const httplib::Request& req,
                                    httplib::Response& res,
@@ -118,11 +118,11 @@ WebService::WebService(DbusCaller& caller)
     try {
       std::rethrow_exception(ep);
     } catch (const std::exception& e) {
-      std::cerr << "Unhandled exception while serving " << req.path << ": "
-                << e.what() << std::endl;
+      PLOGE << "Unhandled exception while serving " << req.path << ": "
+            << e.what();
     }
     res.status = 500;
   });
 }
 
-}
+}  // namespace dbus2http

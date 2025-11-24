@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <plog/Log.h>
+
 #include "entity/DbusSerialization.h"
 #include "entity/InterfaceContext.h"
 #include "entity/service.h"
@@ -30,7 +32,7 @@ class DbusEnumerator {
     ObjectPath object = DbusSerialization::parse_single_object_path(xml, path, context_);
     std::vector<ObjectPath> result;
     result.emplace_back(object);
-    std::cout << "  " << object.path << std::endl;
+    PLOGI << "  " << object.path;
     for (const auto& child : object.children_paths) {
       std::string child_path = path + (path == "/" ? "" : "/") + child;
       std::vector<ObjectPath> child_ops =

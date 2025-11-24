@@ -5,6 +5,7 @@
 #pragma once
 
 #include <sdbus-c++/sdbus-c++.h>
+#include <plog/Log.h>
 
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -16,16 +17,15 @@ namespace dbus2http {
 class Json2Message {
  public:
   static void FillMethod(sdbus::MethodCall& method_call,
-                         const Method& method_type,
-                         const nlohmann::json& json);
+                         const Method& method_type, const nlohmann::json& json);
 
   static void FillDictToMethod(sdbus::MethodCall& method_call,
-                            const std::string& key, const nlohmann::json& json,
-                            const std::string& sig);
+                               const std::string& key,
+                               const nlohmann::json& json,
+                               const std::string& sig);
 
   static void FillMethodSig(sdbus::MethodCall& method_call,
-                            const nlohmann::json& json,
-                            const std::string& sig);
+                            const nlohmann::json& json, const std::string& sig);
 
  private:
   template <typename T>
@@ -40,18 +40,16 @@ class Json2Message {
 
   template <typename T>
   static void AppendIntegerFromJson(sdbus::MethodCall& method_call,
-                                     const nlohmann::json& json) {
+                                    const nlohmann::json& json) {
     if (json.is_number_integer()) {
-      std::cout << "typed append " << std::string(typeid(T).name()) << " "
-                << json.dump() << std::endl;
+      PLOGI << "typed append " << std::string(typeid(T).name()) << " "
+            << json.dump();
       method_call << json.get<T>();
     } else
       throw std::invalid_argument(
           "Expected " + std::string(typeid(T).name()) +
           " type but we get :" + std::string(json.type_name()));
   }
-
 };
-
 
 }  // namespace dbus2http

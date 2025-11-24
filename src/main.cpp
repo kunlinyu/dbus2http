@@ -8,13 +8,13 @@
 #include <chrono>
 #include <csignal>
 #include <fstream>
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include <thread>
 
 #include "dbus2http-proxy/Dbus2Http.h"
 #include "dbus2http-proxy/EchoService.h"
 #include "dbus2http-proxy/ExampleService.h"
+#include "dbus2http-proxy/FileLineFormatter.h"
 #include "dbus2http-proxy/WebService.h"
 
 static std::atomic_bool g_running{true};
@@ -28,7 +28,7 @@ void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
 
     connection->enterEventLoop();
   } catch (const sdbus::Error& e) {
-    std::cerr << "example service launch failed: " << e.what() << std::endl;
+    PLOGE << "example service launch failed: " << e.what();
   }
 }
 
@@ -48,9 +48,8 @@ int main(int argc, char* argv[]) {
       .nargs(argparse::nargs_pattern::at_least_one)
       .help("Only expose services with the given prefix");
 
-  static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
+  static plog::ConsoleAppender<dbus2http::FileLineFormatter> consoleAppender;
 
-  // 初始化日志系统
   plog::init(plog::debug, &consoleAppender);
 
   try {
@@ -63,7 +62,8 @@ int main(int argc, char* argv[]) {
   auto service_prefix =
       program.get<std::vector<std::string>>("--service_prefix");
   for (const auto& prefix : service_prefix) {
-    PLOGI << "prefix: " << prefix << std::endl;
+    PLOGI << "prefix: " << prefix;
+    ;
   }
   PLOGI << "port: " << program.get<int>("--port");
   PLOGI << "system bus: " << std::to_string(program.get<bool>("--system"));

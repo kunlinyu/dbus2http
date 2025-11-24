@@ -57,7 +57,7 @@ class EchoService : public sdbus::AdaptorInterfaces<> {
       sdbus::MethodReply method_reply = method_call.createReply();
       method_call.copyTo(method_reply, true);
       method_reply.send();
-      std::cout << "method: " << method_name << std::endl;
+      PLOGI << "method: " << method_name;
     };
     getObject().addVTable(method_item).forInterface(kEchoInterfaceName);
   }

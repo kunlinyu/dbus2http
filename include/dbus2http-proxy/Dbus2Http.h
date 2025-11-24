@@ -2,6 +2,7 @@
 // Created by yukunlin on 11/23/25.
 //
 #pragma once
+#include <plog/Log.h>
 #include "DbusEnumerator.h"
 #include "WebService.h"
 #include "entity/InterfaceContext.h"
@@ -26,8 +27,8 @@ public:
     auto service_names = dbus2http::DbusEnumerator::list_services();
     for (const auto& service_name : service_names) {
       if (not match_prefix(service_name)) continue;
-      std::cout << "servcie name: " << service_name << std::endl;
-      std::cout << "object paths: " << std::endl;
+      PLOGI << "servcie name: " << service_name;
+      PLOGI << "object paths: ";
       std::vector<ObjectPath> object_paths =
           dbusEnumerator.parse_object_paths_recursively(service_name, "/");
       object_paths.erase(std::remove_if(object_paths.begin(), object_paths.end(),
@@ -42,14 +43,14 @@ public:
     dbus_caller_ = std::make_unique<DbusCaller>(context_, system_);
     service_ = std::make_unique<WebService>(*dbus_caller_);
     service_thread_ = std::thread([&] { service_->run(port); });
-    std::cout << "dbus2http started on port " << port << "..." << std::endl;
+    PLOGI << "dbus2http started on port " << port << "...";
   }
 
   void stop() {
-    std::cout << "stopping httplib service..." << std::endl;
+    PLOGI << "stopping httplib service...";
     service_->stop();
     if (service_thread_.joinable()) service_thread_.join();
-    std::cout << "httplib service stopped." << std::endl;
+    PLOGI << "httplib service stopped.";
   }
 
 private:
