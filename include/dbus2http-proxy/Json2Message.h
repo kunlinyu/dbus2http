@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <sdbus-c++/sdbus-c++.h>
 #include <plog/Log.h>
+#include <sdbus-c++/sdbus-c++.h>
 
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -18,11 +18,6 @@ class Json2Message {
  public:
   static void FillMethod(sdbus::MethodCall& method_call,
                          const Method& method_type, const nlohmann::json& json);
-
-  static void FillDictToMethod(sdbus::MethodCall& method_call,
-                               const std::string& key,
-                               const nlohmann::json& json,
-                               const std::string& sig);
 
   static void FillMethodSig(sdbus::MethodCall& method_call,
                             const nlohmann::json& json, const std::string& sig);
@@ -45,10 +40,21 @@ class Json2Message {
       PLOGD << "typed append " << std::string(typeid(T).name()) << " "
             << json.dump();
       method_call << json.get<T>();
-    } else
-      throw std::invalid_argument(
+    } else if (json.is_string()) {
+      long long integer = std::stoll(json.get<std::string>());
+      if (integer >= std::numeric_limits<T>::min() &&
+          integer <= std::numeric_limits<T>::max())
+        method_call << static_cast<T>(integer);
+      else
+        throw std::invalid_argument(json.get<std::string>() +
+                                    " Exceeds the valid range of target type");
+    } else {
+      std::string error_msg =
           "Expected " + std::string(typeid(T).name()) +
-          " type but we get :" + std::string(json.type_name()));
+          " type but we get :" + std::string(json.type_name());
+      PLOGE << error_msg;
+      throw std::invalid_argument(error_msg);
+    }
   }
 };
 

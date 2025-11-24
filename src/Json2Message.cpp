@@ -17,61 +17,6 @@ void Json2Message::FillMethod(sdbus::MethodCall& method_call,
   }
 }
 
-void Json2Message::FillDictToMethod(sdbus::MethodCall& method_call,
-                                    const std::string& key,
-                                    const nlohmann::json& json,
-                                    const std::string& sig) {
-  std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
-  if (complete_sigs.size() != 2)
-    throw std::invalid_argument("Expected signature length 2 but we get :" +
-                                sig);
-  char key_sig = sig.front();
-  std::string value_sig = sig.substr(1);
-  switch (key_sig) {
-    case 'b':  // boolean
-      if (key == "true")
-        method_call << true;
-      else if (key == "false")
-        method_call << false;
-      else
-        throw std::invalid_argument("Expected boolean key but we get: " + key);
-      break;
-    case 'y':  // byte
-      method_call << extract_integer<uint8_t>(key, key_sig);
-      break;
-    case 'n':  // int16
-      method_call << extract_integer<int16_t>(key, key_sig);
-      break;
-    case 'q':  // uint16
-      method_call << extract_integer<uint16_t>(key, key_sig);
-      break;
-    case 'i':  // int32
-      method_call << extract_integer<int32_t>(key, key_sig);
-      break;
-    case 'u':  // uint32
-      method_call << extract_integer<uint32_t>(key, key_sig);
-      break;
-    case 'x':  // int64
-      method_call << extract_integer<int64_t>(key, key_sig);
-      break;
-    case 't':  // uint64
-      method_call << extract_integer<uint64_t>(key, key_sig);
-      break;
-    case 'd':  // double
-    {
-      double value = std::stod(key);
-      method_call << value;
-    } break;
-    case 's':  // string
-      method_call << key;
-      break;
-    default:
-      throw std::invalid_argument(
-          "the key of dict must be basic type but we get: " + sig);
-  }
-  FillMethodSig(method_call, json, value_sig);
-}
-
 void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
                                  const nlohmann::json& json,
                                  const std::string& sig) {
@@ -140,6 +85,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
         break;
       case 'v':  // variant
         // TODO: extract data from json and fill to method_call
+
         break;
       case 'a':  // array, dict
         if (json.is_array() || json.is_object()) {
@@ -155,8 +101,10 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
               method_call.openDictEntry(element_sig.c_str());
 
               PLOGD << "dict opened";
+              PLOGD << "extract key " << key;
               PLOGD << "extract " << value.dump() << " from " << json.dump();
-              FillDictToMethod(method_call, key, value, element_sig);
+              FillMethodSig(method_call, key, element_sig.substr(0, 1));
+              FillMethodSig(method_call, value, element_sig.substr(1));
               PLOGD << "close dict entry " << element_sig;
               method_call.closeDictEntry();
               PLOGD << "dict closed";

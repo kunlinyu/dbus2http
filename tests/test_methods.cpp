@@ -57,32 +57,42 @@ void run_one_case(httplib::Client& client, const std::string& request,
   REQUIRE(res->body == req_j.dump());
 }
 static plog::ConsoleAppender<FileLineFormatter> consoleAppender;
+std::unique_ptr<sdbus::IConnection> conn;
+std::thread dbus_thread;
+std::unique_ptr<Dbus2Http> dbus2http;
 bool first = true;
 TEST_CASE("call methods", "[i][i]") {
+  PLOGI << "enter test case";
   if (first) {
-    plog::init(plog::info, &consoleAppender);
+    PLOGI << "first";
+    plog::init(plog::debug, &consoleAppender);
     first = false;
-  }
 
-  const auto conn = sdbus::createSessionBusConnection(
-      sdbus::ServiceName(dbus2http::kEchoServiceName));
-  std::thread dbus_thread([&conn] {
+
+    conn = sdbus::createSessionBusConnection(
+        sdbus::ServiceName(dbus2http::kEchoServiceName));
+    dbus_thread = std::thread([&] {
+      try {
+        EchoService service(*conn);
+
+        conn->enterEventLoop();
+      } catch (const sdbus::Error& e) {
+        PLOGE << "echo service launch faild: " << e.what();
+      };
+    });
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    std::vector<std::string> service_prefixes = {"com.test"};
+    dbus2http = std::make_unique<Dbus2Http>(service_prefixes, false);
     try {
-      EchoService service(*conn);
-
-      conn->enterEventLoop();
-    } catch (const sdbus::Error& e) {
-      PLOGE << "echo service launch faild: " << e.what();
-    };
-  });
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-  Dbus2Http dbus2http({"com.test"}, false);
-  try {
-    dbus2http.start(8080);
-  } catch (const std::exception& e) {
-    PLOGE << "start dbus2http failed: " << e.what();
+      dbus2http->start(8080);
+    } catch (const std::exception& e) {
+      PLOGE << "start dbus2http failed: " << e.what();
+    }
+  } else {
+    PLOGI << "not first";
   }
+  PLOGI << "finish first";
 
   PLOGI << "new client";
   httplib::Client client("http://localhost:8080");
@@ -182,8 +192,11 @@ TEST_CASE("call methods", "[i][i]") {
 )";
     run_one_case(client, request, "method_iaDiSssaSiiaDssDSSD");
   }
-  dbus2http.stop();
-  conn->leaveEventLoop();
-  dbus_thread.join();
+  // SECTION("method iv") {
+  //   run_one_case(client, "{\"arg0\":123,\"arg1\":123}", "method_iv");
+  // }
+  // dbus2http.stop();
+  // conn->leaveEventLoop();
+  // dbus_thread.join();
 }
 }  // namespace dbus2http

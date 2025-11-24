@@ -18,8 +18,8 @@ class WebService {
  public:
   explicit WebService(DbusCaller& caller);
 
-  void run(int port) {
-    server_.listen("0.0.0.0", port);
+  bool run(int port) {
+    return server_.listen("0.0.0.0", port);
   }
 
   void stop() { server_.stop(); }
