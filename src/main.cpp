@@ -28,11 +28,20 @@ void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
 
     connection->enterEventLoop();
   } catch (const sdbus::Error& e) {
-    PLOGE << "example service launch failed: " << e.what();
+    PLOGE << "start example service failed: " << e.what();
   }
 }
 
 int main(int argc, char* argv[]) {
+  // setup signal handlers
+  std::signal(SIGINT, handle_sigint);
+  std::signal(SIGTERM, handle_sigint);
+
+  // initialize logging
+  static plog::ConsoleAppender<dbus2http::FileLineFormatter> consoleAppender;
+  plog::init(plog::debug, &consoleAppender);
+
+  // parse arguments
   argparse::ArgumentParser program("dbus2http");
   program.add_description("A D-Bus to HTTP proxy server.");
   program.add_argument("-p", "--port")
@@ -47,36 +56,26 @@ int main(int argc, char* argv[]) {
   program.add_argument("--service_prefix")
       .nargs(argparse::nargs_pattern::at_least_one)
       .help("Only expose services with the given prefix");
-
-  static plog::ConsoleAppender<dbus2http::FileLineFormatter> consoleAppender;
-
-  plog::init(plog::debug, &consoleAppender);
-
   try {
     program.parse_args(argc, argv);
   } catch (const std::exception& e) {
     PLOGE << "argument parsing error: " << e.what() << std::endl << program;
     return 1;
   }
-
   auto service_prefix =
       program.get<std::vector<std::string>>("--service_prefix");
-  for (const auto& prefix : service_prefix) {
-    PLOGI << "prefix: " << prefix;
-    ;
-  }
+  for (const auto& prefix : service_prefix) PLOGI << "prefix: " << prefix;
   PLOGI << "port: " << program.get<int>("--port");
   PLOGI << "system bus: " << std::to_string(program.get<bool>("--system"));
 
-  std::signal(SIGINT, handle_sigint);
-  std::signal(SIGTERM, handle_sigint);
-
-  const auto conn = sdbus::createSessionBusConnection(
-      sdbus::ServiceName(dbus2http::kExampleServiceName));
-
+  // launch example D-Bus service
+  const auto conn = dbus2http::DbusUtils::createConnection(
+      dbus2http::kExampleServiceName, program.get<bool>("--system"));
   std::thread dbus_thread([&conn] { RunExample(conn); });
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
+  // launch dbus2http proxy
+  PLOGI << "Starting dbus2http...";
   dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));
   dbus2http.start(program.get<int>("--port"));
 
