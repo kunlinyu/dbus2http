@@ -22,6 +22,9 @@ class Json2Message {
   static void FillMethodSig(sdbus::MethodCall& method_call,
                             const nlohmann::json& json, const std::string& sig);
 
+  static void FillVariant(sdbus::MethodCall& method_call,
+                          const nlohmann::json& json);
+
  private:
   template <typename T>
   static T extract_integer(const std::string& key, char sig) {

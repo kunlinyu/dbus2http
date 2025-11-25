@@ -62,9 +62,7 @@ std::thread dbus_thread;
 std::unique_ptr<Dbus2Http> dbus2http;
 bool first = true;
 TEST_CASE("call methods", "[i][i]") {
-  PLOGI << "enter test case";
   if (first) {
-    PLOGI << "first";
     plog::init(plog::debug, &consoleAppender);
     first = false;
 
@@ -89,12 +87,8 @@ TEST_CASE("call methods", "[i][i]") {
     } catch (const std::exception& e) {
       PLOGE << "start dbus2http failed: " << e.what();
     }
-  } else {
-    PLOGI << "not first";
   }
-  PLOGI << "finish first";
 
-  PLOGI << "new client";
   httplib::Client client("http://localhost:8080");
   SECTION("method b") {  // boolean
     run_one_case(client, "{\"arg0\":true}", "method_b");
@@ -192,9 +186,42 @@ TEST_CASE("call methods", "[i][i]") {
 )";
     run_one_case(client, request, "method_iaDiSssaSiiaDssDSSD");
   }
-  // SECTION("method iv") {
-  //   run_one_case(client, "{\"arg0\":123,\"arg1\":123}", "method_iv");
-  // }
+  SECTION("method v") {
+    run_one_case(client, "{\"arg0\":{\"variant\":\"i\",\"value\":123}}", "method_v");
+  }
+  SECTION("method iv") {
+    run_one_case(client, "{\"arg0\":123,\"arg1\":{\"variant\":\"i\",\"value\":123}}", "method_iv");
+  }
+  SECTION("method a{sv}") {
+    std::string request = R"*(
+{
+  "arg0": {
+    "key1": {
+      "variant":"i",
+      "value":123
+    },
+    "key2": {
+      "variant":"(iis)",
+      "value": [123, 456, "hello"]
+    },
+    "key3": {
+      "variant":"a{sv}",
+      "value": {
+        "subkey1": {
+          "variant":"s",
+          "value":"subvalue1"
+        },
+        "subkey2": {
+          "variant":"i",
+          "value": 123
+        }
+      }
+    }
+  }
+}
+)*";
+    run_one_case(client, request, "method_aDsvD");
+  }
   // dbus2http.stop();
   // conn->leaveEventLoop();
   // dbus_thread.join();

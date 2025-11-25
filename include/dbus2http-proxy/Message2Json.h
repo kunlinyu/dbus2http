@@ -34,8 +34,30 @@ class Message2Json {
     return result;
   }
 
+  static nlohmann::json ExtractVariant(sdbus::MethodReply& method_reply) {
+    PLOGD << "Extract Variant";
+    const auto [sig, element_sig] = method_reply.peekType();
+    if (sig != 'v')
+      throw std::invalid_argument("Expected variant type but got " +
+                                  std::string(1, sig));
+    if (element_sig == nullptr)
+      throw std::invalid_argument("Variant has NULL element type");
+    PLOGD << "variant element signature " << element_sig;
+    PLOGD << "open variant " << element_sig;
+    method_reply.enterVariant(element_sig);
+    nlohmann::json value = ExtractMethod(method_reply, element_sig);
+    PLOGD << "exit variant " << element_sig;
+    method_reply.exitVariant();
+
+    nlohmann::json result = {{"variant", std::string(element_sig)},
+                             {"value", value}};
+
+    return result;
+  }
+
   static nlohmann::json ExtractMethod(sdbus::MethodReply& method_reply,
                                       const std::string& sig) {
+    PLOGI << "ExtractMethod sig: " << sig;
     std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
     if (complete_sigs.size() > 1) {
       nlohmann::json result = nlohmann::json::array();
@@ -72,10 +94,7 @@ class Message2Json {
         PLOGD << "extract string";
         return get_int<std::string>(method_reply);
       case 'v':  // variant
-        // TODO: support variant
-        // sdbus::Variant v;
-        // method_reply >> v;
-        return {};
+        return ExtractVariant(method_reply);
       case '(':  // struct
       {
         std::string element_sig = sig.substr(1, sig.size() - 2);
@@ -109,8 +128,7 @@ class Message2Json {
             PLOGD << "extracted key: " << key_str;
             result[key_str] =
                 ExtractMethod(method_reply, element_sig.substr(1));
-            PLOGD << "extracted value" << result[key_str].dump()
-                     ;
+            PLOGD << "extracted value" << result[key_str].dump();
             method_reply.exitDictEntry();
             PLOGD << "exited dict entry";
           }

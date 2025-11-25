@@ -84,8 +84,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
                                       std::string(json.type_name()));
         break;
       case 'v':  // variant
-        // TODO: extract data from json and fill to method_call
-
+        FillVariant(method_call, json);
         break;
       case 'a':  // array, dict
         if (json.is_array() || json.is_object()) {
@@ -116,8 +115,8 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
           PLOGD << "close container: " << array_sig;
           method_call.closeContainer();
         } else {
-          std::string err_msg =
-                    "Expected array type but we get :" + std::string(json.type_name());
+          std::string err_msg = "Expected array type but we get :" +
+                                std::string(json.type_name());
           PLOGE << err_msg;
           throw std::invalid_argument(err_msg);
         }
@@ -136,4 +135,18 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
     }
   }
 }
+void Json2Message::FillVariant(sdbus::MethodCall& method_call,
+                               const nlohmann::json& json) {
+  if (not json.is_object())
+    throw std::invalid_argument("Expected object type for variant");
+  if (not json.contains("variant") or not json.contains("value"))
+    throw std::invalid_argument("Missing signature or value for variant");
+  std::string sig = json["variant"].get<std::string>();
+  PLOGD << "open variant " << sig;
+  method_call.openVariant(sig.c_str());
+  FillMethodSig(method_call, json["value"], sig);
+  PLOGD << "close variant " << sig;
+  method_call.closeVariant();
+}
+
 }  // namespace dbus2http
