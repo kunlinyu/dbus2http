@@ -16,14 +16,13 @@ namespace dbus2http {
 
 class Json2Message {
  public:
-  static void FillMessage(sdbus::Message& msg,
-                         const Method& method_type, const nlohmann::json& json);
-
-  static void FillMessage(sdbus::Message& msg, const std::string& sig,
-                            const nlohmann::json& json);
-
-  static void FillVariant(sdbus::Message& msg,
+  static void FillMessage(sdbus::Message& message, const Method& method_type,
                           const nlohmann::json& json);
+
+  static void FillMessage(sdbus::Message& message, const std::string& sig,
+                          const nlohmann::json& json);
+
+  static void FillVariant(sdbus::Message& message, const nlohmann::json& json);
 
  private:
   template <typename T>
@@ -37,17 +36,17 @@ class Json2Message {
   }
 
   template <typename T>
-  static void AppendIntegerFromJson(sdbus::Message& method_call,
+  static void AppendIntegerFromJson(sdbus::Message& message,
                                     const nlohmann::json& json) {
     if (json.is_number_integer()) {
       PLOGD << "typed append " << std::string(typeid(T).name()) << " "
             << json.dump();
-      method_call << json.get<T>();
+      message << json.get<T>();
     } else if (json.is_string()) {
       long long integer = std::stoll(json.get<std::string>());
       if (integer >= std::numeric_limits<T>::min() &&
           integer <= std::numeric_limits<T>::max())
-        method_call << static_cast<T>(integer);
+        message << static_cast<T>(integer);
       else
         throw std::invalid_argument(json.get<std::string>() +
                                     " Exceeds the valid range of target type");

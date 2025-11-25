@@ -8,7 +8,7 @@
 
 namespace dbus2http {
 
-nlohmann::json Message2Json::ExtractMessage(sdbus::Message& method_reply,
+nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
                                             const Method& method_type) {
   nlohmann::json result;
   int i = 0;
@@ -16,14 +16,14 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& method_reply,
     if (arg.direction != "out") continue;
     std::string arg_name = arg.name;
     if (arg_name.empty()) arg_name = "arg" + std::to_string(i++);
-    result[arg_name] = ExtractMessage(method_reply, arg.type);
+    result[arg_name] = ExtractMessage(message, arg.type);
   }
   return result;
 }
 
-nlohmann::json Message2Json::ExtractVariant(sdbus::Message& method_reply) {
+nlohmann::json Message2Json::ExtractVariant(sdbus::Message& message) {
   PLOGD << "Extract Variant";
-  const auto [sig, element_sig] = method_reply.peekType();
+  const auto [sig, element_sig] = message.peekType();
   if (sig != 'v')
     throw std::invalid_argument("Expected variant type but got " +
                                 std::string(1, sig));
@@ -31,10 +31,10 @@ nlohmann::json Message2Json::ExtractVariant(sdbus::Message& method_reply) {
     throw std::invalid_argument("Variant has NULL element type");
   PLOGD << "variant element signature " << element_sig;
   PLOGD << "open variant " << element_sig;
-  method_reply.enterVariant(element_sig);
-  nlohmann::json value = ExtractMessage(method_reply, element_sig);
+  message.enterVariant(element_sig);
+  nlohmann::json value = ExtractMessage(message, element_sig);
   PLOGD << "exit variant " << element_sig;
-  method_reply.exitVariant();
+  message.exitVariant();
 
   nlohmann::json result = {{"variant", std::string(element_sig)},
                            {"value", value}};
@@ -42,14 +42,14 @@ nlohmann::json Message2Json::ExtractVariant(sdbus::Message& method_reply) {
   return result;
 }
 
-nlohmann::json Message2Json::ExtractMessage(sdbus::Message& method_reply,
+nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
                                             const std::string& sig) {
   PLOGI << "ExtractMethod sig: " << sig;
   std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
     nlohmann::json result = nlohmann::json::array();
     for (const auto& s : complete_sigs)
-      result.push_back(ExtractMessage(method_reply, s));
+      result.push_back(ExtractMessage(message, s));
     return result;
   }
 
@@ -57,37 +57,37 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& method_reply,
     case 'b':  // boolean
       bool b;
       PLOGD << "extract bool";
-      method_reply >> b;
+      message >> b;
       return b;
     case 'y':  // byte
-      return get_int<uint8_t>(method_reply);
+      return get_int<uint8_t>(message);
     case 'n':  // int16
-      return get_int<int16_t>(method_reply);
+      return get_int<int16_t>(message);
     case 'q':  // uint16
-      return get_int<uint16_t>(method_reply);
+      return get_int<uint16_t>(message);
     case 'i':  // int32
       PLOGD << "extract int32";
-      return get_int<int32_t>(method_reply);
+      return get_int<int32_t>(message);
     case 'u':  // uint32
       PLOGD << "extract uint32";
-      return get_int<uint32_t>(method_reply);
+      return get_int<uint32_t>(message);
     case 'x':  // int64
-      return get_int<int64_t>(method_reply);
+      return get_int<int64_t>(message);
     case 't':  // uint64
-      return get_int<uint64_t>(method_reply);
+      return get_int<uint64_t>(message);
     case 'd':  // double
-      return get_int<double>(method_reply);
+      return get_int<double>(message);
     case 's':  // string
       PLOGD << "extract string";
-      return get_int<std::string>(method_reply);
+      return get_int<std::string>(message);
     case 'v':  // variant
-      return ExtractVariant(method_reply);
+      return ExtractVariant(message);
     case '(':  // struct
     {
       std::string element_sig = sig.substr(1, sig.size() - 2);
-      method_reply.enterStruct(element_sig.c_str());
-      auto j = ExtractMessage(method_reply, element_sig);
-      method_reply.exitStruct();
+      message.enterStruct(element_sig.c_str());
+      auto j = ExtractMessage(message, element_sig);
+      message.exitStruct();
       return j;
     }
     case 'a':               // array, dict
@@ -96,13 +96,13 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& method_reply,
         std::string array_sig = sig.substr(1);
         std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
         PLOGD << "enter container " << array_sig;
-        method_reply.enterContainer(array_sig.c_str());
+        message.enterContainer(array_sig.c_str());
         PLOGD << "entered container";
-        while (method_reply.enterDictEntry(element_sig.c_str())) {
+        while (message.enterDictEntry(element_sig.c_str())) {
           PLOGD << "entered dict " << element_sig;
           nlohmann::json key;
           PLOGD << "extract key";
-          key = ExtractMessage(method_reply, element_sig.substr(0, 1));
+          key = ExtractMessage(message, element_sig.substr(0, 1));
           std::string key_str;
           if (key.is_boolean())
             key_str = std::to_string(key.get<bool>());
@@ -113,13 +113,13 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& method_reply,
           else if (key.is_string())
             key_str = key.get<std::string>();
           PLOGD << "extracted key: " << key_str;
-          result[key_str] = ExtractMessage(method_reply, element_sig.substr(1));
+          result[key_str] = ExtractMessage(message, element_sig.substr(1));
           PLOGD << "extracted value" << result[key_str].dump();
-          method_reply.exitDictEntry();
+          message.exitDictEntry();
           PLOGD << "exited dict entry";
         }
-        method_reply.clearFlags();
-        method_reply.exitContainer();
+        message.clearFlags();
+        message.exitContainer();
         return result;
       }
       if (sig[1] == '(') {  // array
@@ -127,40 +127,40 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& method_reply,
         std::string array_sig = sig.substr(1);
         std::string element_sig = array_sig.substr(1, array_sig.size() - 2);
         PLOGD << "enter container " << array_sig;
-        method_reply.enterContainer(array_sig.c_str());
+        message.enterContainer(array_sig.c_str());
         PLOGD << "entered container " << array_sig;
         while (true) {
           PLOGD << "enter struct " << element_sig;
-          if (not method_reply.enterStruct(element_sig.c_str())) break;
+          if (not message.enterStruct(element_sig.c_str())) break;
           PLOGD << "entered struct " << element_sig;
-          nlohmann::json value = ExtractMessage(method_reply, element_sig);
-          if (method_reply) {
+          nlohmann::json value = ExtractMessage(message, element_sig);
+          if (message) {
             result.push_back(value);
             PLOGD << "exit struct " << element_sig;
-            method_reply.exitStruct();
+            message.exitStruct();
             PLOGD << "exited struct " << element_sig;
           } else
             break;
         }
-        method_reply.clearFlags();
-        method_reply.exitContainer();
+        message.clearFlags();
+        message.exitContainer();
         return result;
       }
       {  // single charactor array
         nlohmann::json result = nlohmann::json::array();
         std::string element_sig = sig.substr(1);
         PLOGD << "enter container " << element_sig;
-        method_reply.enterContainer(element_sig.c_str());
+        message.enterContainer(element_sig.c_str());
         while (true) {
-          nlohmann::json value = ExtractMessage(method_reply, element_sig);
-          if (method_reply)
+          nlohmann::json value = ExtractMessage(message, element_sig);
+          if (message)
             result.push_back(value);
           else
             break;
         }
-        method_reply.clearFlags();
+        message.clearFlags();
         PLOGD << "exit container " << element_sig;
-        method_reply.exitContainer();
+        message.exitContainer();
         return result;
       }
 

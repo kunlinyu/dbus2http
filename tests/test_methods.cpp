@@ -35,7 +35,7 @@ void run_one_case(httplib::Client& client, const std::string& request,
           });
       if (res) break;
       PLOGI << "retry";
-      std::this_thread::sleep_for(std::chrono::milliseconds(10 * i));
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     PLOGI << "post reply";
   } catch (const std::exception& e) {

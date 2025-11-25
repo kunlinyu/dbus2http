@@ -35,16 +35,16 @@ class DbusCaller {
             const nlohmann::json& request) const {
     auto proxy = sdbus::createProxy(sdbus::ServiceName(service_name),
                                     sdbus::ObjectPath(object_path));
-    auto method = proxy->createMethodCall(sdbus::InterfaceName(interface_name),
+    auto method_call = proxy->createMethodCall(sdbus::InterfaceName(interface_name),
                                           sdbus::MethodName(method_name));
     Method method_type = context_.GetMethod(interface_name, method_name);
     PLOGD << "=====fill method call====";
     Json2Message::FillMessage(
-        method, context_.GetMethod(interface_name, method_name), request);
+        method_call, context_.GetMethod(interface_name, method_name), request);
     PLOGD << "=====call====";
-    auto reply = proxy->callMethod(method);
+    sdbus::MethodReply method_reply = proxy->callMethod(method_call);
     PLOGD << "=====extract method reply====";
-    return Message2Json::ExtractMessage(reply, method_type);
+    return Message2Json::ExtractMessage(method_reply, method_type);
   }
 };
 

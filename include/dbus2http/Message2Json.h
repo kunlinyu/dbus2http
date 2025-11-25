@@ -14,12 +14,12 @@ namespace dbus2http {
 
 class Message2Json {
  public:
-  static nlohmann::json ExtractMessage(sdbus::Message& method_reply,
+  static nlohmann::json ExtractMessage(sdbus::Message& message,
                                        const Method& method_type);
 
-  static nlohmann::json ExtractVariant(sdbus::Message& method_reply);
+  static nlohmann::json ExtractVariant(sdbus::Message& message);
 
-  static nlohmann::json ExtractMessage(sdbus::Message& method_reply,
+  static nlohmann::json ExtractMessage(sdbus::Message& message,
                                        const std::string& sig);
 
  private:
