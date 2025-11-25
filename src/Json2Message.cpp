@@ -6,20 +6,20 @@
 
 namespace dbus2http {
 
-void Json2Message::FillMethod(sdbus::MethodCall& method_call,
-                              const Method& method_type,
-                              const nlohmann::json& json) {
+void Json2Message::FillMessage(sdbus::Message& method_call,
+                               const Method& method_type,
+                               const nlohmann::json& json) {
   for (const auto& arg : method_type.args) {
     if (arg.direction != "in") continue;
     if (!json.contains(arg.name))
       throw std::invalid_argument("Missing argument: " + arg.name);
-    FillMethodSig(method_call, json[arg.name], arg.type);
+    FillMessage(method_call, arg.type, json[arg.name]);
   }
 }
 
-void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
-                                 const nlohmann::json& json,
-                                 const std::string& sig) {
+void Json2Message::FillMessage(sdbus::Message& method_call,
+                               const std::string& sig,
+                               const nlohmann::json& json) {
   PLOGD << "FillmethodSig: " << json.dump() << " " << sig;
   std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
@@ -34,7 +34,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
           "Expected array size " + std::to_string(complete_sigs.size()) +
           " but we get :" + std::to_string(json.size()));
     for (size_t i = 0; i < complete_sigs.size(); ++i)
-      FillMethodSig(method_call, json[i], complete_sigs[i]);
+      FillMessage(method_call, complete_sigs[i], json[i]);
   } else if (complete_sigs.size() == 1) {
     const std::string& current_sig = complete_sigs.front();
     switch (current_sig.front()) {
@@ -102,16 +102,16 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
               PLOGD << "dict opened";
               PLOGD << "extract key " << key;
               PLOGD << "extract " << value.dump() << " from " << json.dump();
-              FillMethodSig(method_call, key, element_sig.substr(0, 1));
-              FillMethodSig(method_call, value, element_sig.substr(1));
+              FillMessage(method_call, element_sig.substr(0, 1), key);
+              FillMessage(method_call, element_sig.substr(1), value);
               PLOGD << "close dict entry " << element_sig;
               method_call.closeDictEntry();
               PLOGD << "dict closed";
             }
           else if (current_sig[1] == '(')  // array
-            for (const auto& j : json) FillMethodSig(method_call, j, array_sig);
+            for (const auto& j : json) FillMessage(method_call, array_sig, j);
           else
-            for (const auto& j : json) FillMethodSig(method_call, j, array_sig);
+            for (const auto& j : json) FillMessage(method_call, array_sig, j);
           PLOGD << "close container: " << array_sig;
           method_call.closeContainer();
         } else {
@@ -127,7 +127,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
         std::string element_sig = current_sig.substr(1, current_sig.size() - 2);
         PLOGD << "open struct " << element_sig;
         method_call.openStruct(element_sig.c_str());
-        FillMethodSig(method_call, json, element_sig);
+        FillMessage(method_call, element_sig, json);
         PLOGD << "close struct " << current_sig;
         method_call.closeStruct();
       } break;
@@ -135,7 +135,7 @@ void Json2Message::FillMethodSig(sdbus::MethodCall& method_call,
     }
   }
 }
-void Json2Message::FillVariant(sdbus::MethodCall& method_call,
+void Json2Message::FillVariant(sdbus::Message& method_call,
                                const nlohmann::json& json) {
   if (not json.is_object())
     throw std::invalid_argument("Expected object type for variant");
@@ -144,7 +144,7 @@ void Json2Message::FillVariant(sdbus::MethodCall& method_call,
   std::string sig = json["variant"].get<std::string>();
   PLOGD << "open variant " << sig;
   method_call.openVariant(sig.c_str());
-  FillMethodSig(method_call, json["value"], sig);
+  FillMessage(method_call, sig, json["value"]);
   PLOGD << "close variant " << sig;
   method_call.closeVariant();
 }

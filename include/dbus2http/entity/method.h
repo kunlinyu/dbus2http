@@ -11,7 +11,6 @@ struct Method {
   std::vector<Argument> args;
 
   Method() = default;
-  explicit Method(const std::string& name) : name(name) {}
 
   void add(const Argument& arg) { args.push_back(arg); }
 };

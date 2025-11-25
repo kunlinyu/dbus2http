@@ -16,13 +16,13 @@ namespace dbus2http {
 
 class Json2Message {
  public:
-  static void FillMethod(sdbus::MethodCall& method_call,
+  static void FillMessage(sdbus::Message& msg,
                          const Method& method_type, const nlohmann::json& json);
 
-  static void FillMethodSig(sdbus::MethodCall& method_call,
-                            const nlohmann::json& json, const std::string& sig);
+  static void FillMessage(sdbus::Message& msg, const std::string& sig,
+                            const nlohmann::json& json);
 
-  static void FillVariant(sdbus::MethodCall& method_call,
+  static void FillVariant(sdbus::Message& msg,
                           const nlohmann::json& json);
 
  private:
@@ -37,7 +37,7 @@ class Json2Message {
   }
 
   template <typename T>
-  static void AppendIntegerFromJson(sdbus::MethodCall& method_call,
+  static void AppendIntegerFromJson(sdbus::Message& method_call,
                                     const nlohmann::json& json) {
     if (json.is_number_integer()) {
       PLOGD << "typed append " << std::string(typeid(T).name()) << " "

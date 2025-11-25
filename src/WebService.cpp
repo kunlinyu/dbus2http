@@ -4,6 +4,8 @@
 #include <dbus2http/WebService.h>
 #include <dbus2http/entity/DbusSerialization.h>
 
+#include <utility>
+
 namespace dbus2http {
 
 bool WebService::parse_dbus_request_path(const std::string& path,
@@ -45,43 +47,38 @@ bool WebService::parse_dbus_request_path(const std::string& path,
 }
 
 WebService::WebService(DbusCaller& caller) : caller_(caller) {
-  server_.Post("/echo",
-               [](const httplib::Request& req, httplib::Response& res) {
-                 res.set_content(req.body, "text/plain");
-               });
-  server_.Get("/hello",
-              [](const httplib::Request& req, httplib::Response& res) {
-                res.set_content("hello world", "text/plain");
-              });
-  server_.Get(
-      "/dbus", [this](const httplib::Request& req, httplib::Response& res) {
-        nlohmann::json j;
-        j["services"] = nlohmann::json::array();
-        for (const auto& [service_name, _] : caller_.context().object_paths) {
-          j["services"].push_back(service_name);
-        }
-        res.set_content(j.dump(), "application/json");
-      });
-  server_.Get(R"(/dbus/interface/.*)",
-              [this](const httplib::Request& req, httplib::Response& res) {
-                std::string suffix = req.path.substr(16);
-                if (suffix.find('/') == std::string::npos) {
-                  std::string interface_name = suffix;
-                  if (caller_.context().interfaces.contains(interface_name)) {
-                    nlohmann::json j =
-                        caller_.context().interfaces.at(interface_name);
-                    res.set_content(j.dump(2), "application/json");
-                  } else {
-                    res.status = 404;
-                    res.set_content("interface not found", "text/plain");
-                  }
-                }
-              });
-  server_.Get(R"(/dbus/service/.*)", [this](const httplib::Request& req,
-                                    httplib::Response& res) {
-    std::string suffix = req.path.substr(14);
+  server_.Post("/echo", [](const auto& req, auto& res) {
+    res.set_content(req.body, "text/plain");
+  });
+  server_.Get("/hello", [](const auto& req, auto& res) {
+    res.set_content("hello world", "text/plain");
+  });
+  server_.Get("/dbus", [this](const auto& req, auto& res) {
+    nlohmann::json j;
+    j["services"] = nlohmann::json::array();
+    for (const auto& service_name :
+         caller_.context().object_paths | std::views::keys) {
+      j["services"].push_back(service_name);
+    }
+    res.set_content(j.dump(), "application/json");
+  });
+  server_.Get(R"(/dbus/interface/(.*))", [this](const auto& req, auto& res) {
+    std::string suffix = req.matches[1];
     if (suffix.find('/') == std::string::npos) {
-      std::string service_name = suffix;
+      const std::string& interface_name = suffix;
+      if (caller_.context().interfaces.contains(interface_name)) {
+        nlohmann::json j = caller_.context().interfaces.at(interface_name);
+        res.set_content(j.dump(2), "application/json");
+      } else {
+        res.status = 404;
+        res.set_content("interface not found", "text/plain");
+      }
+    }
+  });
+  server_.Get(R"(/dbus/service/(.*))", [this](const auto& req, auto& res) {
+    std::string suffix = req.matches[1];
+    if (suffix.find('/') == std::string::npos) {
+      const std::string& service_name = suffix;
       if (caller_.context().object_paths.contains(service_name)) {
         nlohmann::json j = caller_.context().object_paths.at(service_name);
         res.set_content(j.dump(2), "application/json");
@@ -91,8 +88,7 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       }
     }
   });
-  server_.Post(R"(/dbus/.*)", [this](const httplib::Request& req,
-                                     httplib::Response& res) {
+  server_.Post(R"(/dbus/.*)", [this](const auto& req, auto& res) {
     PLOGD << "in post";
     std::string service_name, object_path, interface_name, method;
     if (!parse_dbus_request_path(req.path, service_name, object_path,
@@ -128,12 +124,11 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     }
   });
 
-  server_.set_logger([](const httplib::Request& req,
-                        const httplib::Response& res) {
+  server_.set_logger([](const auto& req, const auto& res) {
     // Timestamp
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
-    std::tm tm;
+    std::tm tm{};
     localtime_r(&t, &tm);
     std::ostringstream ts;
     ts << std::put_time(&tm, "%F %T");
@@ -149,7 +144,7 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
                                    httplib::Response& res,
                                    std::exception_ptr ep) {
     try {
-      std::rethrow_exception(ep);
+      std::rethrow_exception(std::move(ep));
     } catch (const std::exception& e) {
       PLOGE << "Unhandled exception while serving " << req.path << ": "
             << e.what();
