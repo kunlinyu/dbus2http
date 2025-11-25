@@ -11,9 +11,9 @@
 #include <iostream>
 #include <string>
 
-#include "dbus2http-proxy/Dbus2Http.h"
-#include "dbus2http-proxy/EchoService.h"
-#include "dbus2http-proxy/FileLineFormatter.h"
+#include "dbus2http/Dbus2Http.h"
+#include "dbus2http/EchoService.h"
+#include "dbus2http/FileLineFormatter.h"
 
 namespace dbus2http {
 

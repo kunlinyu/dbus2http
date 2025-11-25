@@ -1,7 +1,7 @@
 //
 // Created by yukunlin on 11/22/25.
 //
-#include <dbus2http-proxy/ExampleService.h>
+#include <dbus2http/ExampleService.h>
 
 #include <iostream>
 

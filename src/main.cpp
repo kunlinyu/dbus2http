@@ -11,11 +11,11 @@
 #include <nlohmann/json.hpp>
 #include <thread>
 
-#include "dbus2http-proxy/Dbus2Http.h"
-#include "dbus2http-proxy/EchoService.h"
-#include "dbus2http-proxy/ExampleService.h"
-#include "dbus2http-proxy/FileLineFormatter.h"
-#include "dbus2http-proxy/WebService.h"
+#include "dbus2http/Dbus2Http.h"
+#include "dbus2http/EchoService.h"
+#include "dbus2http/ExampleService.h"
+#include "dbus2http/FileLineFormatter.h"
+#include "dbus2http/WebService.h"
 
 static std::atomic_bool g_running{true};
 

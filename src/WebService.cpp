@@ -1,8 +1,8 @@
 //
 // Created by yukunlin on 11/22/25.
 //
-#include <dbus2http-proxy/WebService.h>
-#include <dbus2http-proxy/entity/DbusSerialization.h>
+#include <dbus2http/WebService.h>
+#include <dbus2http/entity/DbusSerialization.h>
 
 namespace dbus2http {
 

@@ -2,7 +2,7 @@
 // Created by yukunlin on 2025/11/17.
 //
 
-#include <dbus2http-proxy/DbusEnumerator.h>
+#include <dbus2http/DbusEnumerator.h>
 #include <sdbus-c++/sdbus-c++.h>
 
 #include <algorithm>
@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "dbus2http-proxy/DbusUtils.h"
+#include "dbus2http/DbusUtils.h"
 
 namespace dbus2http {
 
