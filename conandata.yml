@@ -2,6 +2,7 @@
 # To keep your changes, remove these comment lines, but the plugin won't be able to modify your requirements
 
 requirements:
+  - "websocketpp/0.8.2"
   - "plog/1.1.10"
   - "argparse/3.2"
   - "catch2/3.11.0"

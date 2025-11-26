@@ -8,6 +8,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(httplib REQUIRED)
 find_package(tinyxml2 REQUIRED)
 find_package(argparse REQUIRED)
+find_package(websocketpp REQUIRED)
 
 find_package(plog REQUIRED)
 add_compile_definitions(PLOG_CAPTURE_FILE)
@@ -25,7 +26,7 @@ add_library(libdbus2http
         src/Message2Json.cpp
         src/ExampleService.cpp
 )
-target_link_libraries(libdbus2http plog::plog tinyxml2::tinyxml2 SDBusCpp::sdbus-c++ nlohmann_json::nlohmann_json httplib::httplib)
+target_link_libraries(libdbus2http plog::plog tinyxml2::tinyxml2 SDBusCpp::sdbus-c++ nlohmann_json::nlohmann_json httplib::httplib websocketpp::websocketpp)
 
 add_executable(dbus2http src/main.cpp)
 target_link_libraries(dbus2http libdbus2http argparse::argparse)
