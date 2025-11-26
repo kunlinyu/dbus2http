@@ -15,6 +15,7 @@
 #include "dbus2http/EchoService.h"
 #include "dbus2http/ExampleService.h"
 #include "dbus2http/FileLineFormatter.h"
+#include "dbus2http/SignalSocket.h"
 #include "dbus2http/WebService.h"
 
 static std::atomic_bool g_running{true};
@@ -82,20 +83,17 @@ int main(int argc, char* argv[]) {
   dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));
   dbus2http.start(program.get<int>("--port"));
 
-  conn->addMatch("type='signal',sender='com.example.ServiceName'",
-                 [&](sdbus::Message msg) {
-                   auto args = dbus2http.getContext()
-                                   .interfaces.at(msg.getInterfaceName())
-                                   .get_signal(msg.getMemberName())
-                                   .args;
-                   nlohmann::json j = dbus2http::Message2Json::WrapHeader(
-                       msg, dbus2http::Message2Json::ExtractMessage(msg, args));
-                   PLOGI << j.dump(2);
-                 });
+  dbus2http::SignalSocket signal_socket(dbus2http.getContext(),
+                                        program.get<bool>("--system"));
 
+  signal_socket.start();
   while (g_running.load()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
+
+  PLOGI << "Stopping signal socket...";
+  signal_socket.stop();
+  PLOGI << "signal socket stopped.";
 
   PLOGI << "Stopping dbus2http...";
   dbus2http.stop();

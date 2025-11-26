@@ -2,7 +2,7 @@
 // Created by yukunlin on 2025/11/24.
 //
 
-#pragma onece
+#pragma once
 #include <sdbus-c++/IConnection.h>
 #include <sdbus-c++/Types.h>
 

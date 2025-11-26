@@ -6,10 +6,7 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 
-#include <iostream>
 #include <string>
-
-#include "ExampleService.h"
 
 namespace dbus2http {
 

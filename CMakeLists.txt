@@ -26,6 +26,7 @@ add_library(libdbus2http
         src/Message2Json.cpp
         src/ExampleService.cpp
         src/Dbus2Http.cpp
+        src/SignalSocket.cpp
 )
 target_link_libraries(libdbus2http plog::plog tinyxml2::tinyxml2 SDBusCpp::sdbus-c++ nlohmann_json::nlohmann_json httplib::httplib websocketpp::websocketpp)
 
