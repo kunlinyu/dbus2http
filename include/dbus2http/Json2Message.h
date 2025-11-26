@@ -10,13 +10,14 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "entity/method.h"
+#include "entity/argument.h"
 
 namespace dbus2http {
 
 class Json2Message {
  public:
-  static void FillMessage(sdbus::Message& message, const Method& method_type,
+  static void FillMessage(sdbus::Message& message,
+                          const std::vector<Argument>& method_type,
                           const nlohmann::json& json);
 
   static void FillMessage(sdbus::Message& message, const std::string& sig,

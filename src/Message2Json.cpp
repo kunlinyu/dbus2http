@@ -9,11 +9,10 @@
 namespace dbus2http {
 
 nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
-                                            const Method& method_type) {
+                                            const std::vector<Argument>& args) {
   nlohmann::json result;
   int i = 0;
-  for (const auto& arg : method_type.args) {
-    if (arg.direction != "out") continue;
+  for (const auto& arg : args) {
     std::string arg_name = arg.name;
     if (arg_name.empty()) arg_name = "arg" + std::to_string(i++);
     result[arg_name] = ExtractMessage(message, arg.type);
@@ -44,7 +43,7 @@ nlohmann::json Message2Json::ExtractVariant(sdbus::Message& message) {
 
 nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
                                             const std::string& sig) {
-  PLOGI << "ExtractMethod sig: " << sig;
+  PLOGD << "ExtractMethod sig: " << sig;
   std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
     nlohmann::json result = nlohmann::json::array();
@@ -180,5 +179,17 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
     default:
       throw std::invalid_argument("Unknown signature: " + sig);
   }
+}
+nlohmann::json Message2Json::WrapHeader(sdbus::Message& message,
+                                        const nlohmann::json& data) {
+  nlohmann::json result;
+  result["type"] = "signal";
+  result["interface"] = json_null(message.getInterfaceName());
+  result["member"] = json_null(message.getMemberName());
+  result["sender"] = json_null(message.getSender());
+  result["path"] = json_null(message.getPath());
+  result["destination"] = json_null(message.getDestination());
+  result["data"] = data;
+  return result;
 }
 }  // namespace dbus2http

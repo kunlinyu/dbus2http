@@ -40,7 +40,8 @@ int main(int argc, char* argv[]) {
   std::signal(SIGTERM, handle_sigint);
 
   // initialize logging
-  static plog::ColorConsoleAppender<dbus2http::FileLineFormatter> consoleAppender;
+  static plog::ColorConsoleAppender<dbus2http::FileLineFormatter>
+      consoleAppender;
   plog::init(plog::debug, &consoleAppender);
 
   // parse arguments
@@ -80,6 +81,17 @@ int main(int argc, char* argv[]) {
   PLOGI << "Starting dbus2http...";
   dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));
   dbus2http.start(program.get<int>("--port"));
+
+  conn->addMatch("type='signal',sender='com.example.ServiceName'",
+                 [&](sdbus::Message msg) {
+                   auto args = dbus2http.getContext()
+                                   .interfaces.at(msg.getInterfaceName())
+                                   .get_signal(msg.getMemberName())
+                                   .args;
+                   nlohmann::json j = dbus2http::Message2Json::WrapHeader(
+                       msg, dbus2http::Message2Json::ExtractMessage(msg, args));
+                   PLOGI << j.dump(2);
+                 });
 
   while (g_running.load()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));

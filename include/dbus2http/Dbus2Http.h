@@ -26,6 +26,8 @@ class Dbus2Http {
 
   void stop();
 
+  const InterfaceContext& getContext() const { return context_; }
+
  private:
   bool match_prefix(const std::string& service_name);
 };

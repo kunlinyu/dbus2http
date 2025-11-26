@@ -7,10 +7,9 @@
 namespace dbus2http {
 
 void Json2Message::FillMessage(sdbus::Message& message,
-                               const Method& method_type,
+                               const std::vector<Argument>& args,
                                const nlohmann::json& json) {
-  for (const auto& arg : method_type.args) {
-    if (arg.direction != "in") continue;
+  for (const auto& arg : args) {
     if (!json.contains(arg.name))
       throw std::invalid_argument("Missing argument: " + arg.name);
     FillMessage(message, arg.type, json[arg.name]);
