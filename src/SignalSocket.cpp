@@ -26,30 +26,38 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
 
     std::string match = query.substr(6);
     PLOGI << "WebSocket connection opened with query: " << query;
-    PLOGI << "match : " << match;
+    PLOGD << "match : " << match;
     match = replaceAll(match, "%27", "'");
-    PLOGI << "match : " << match;
+    PLOGD << "match : " << match;
     sdbus::return_slot_t resurn_slot;
-    conn2slot_[conn_hdl] = dbus_connection_->addMatch(match, [&, conn_hdl](sdbus::Message msg) {
-      auto args = context_.interfaces.at(msg.getInterfaceName())
-                      .get_signal(msg.getMemberName())
-                      .args;
-      PLOGD << "get message from service: " << msg.getInterfaceName() << " member: " << msg.getMemberName();
-      nlohmann::json j = Message2Json::WrapHeader(
-          msg, Message2Json::ExtractMessage(msg, args));
-      server::connection_ptr conn = ws_server_.get_con_from_hdl(conn_hdl, ec);
-      if (conn)
-        conn->send(j.dump(), websocketpp::frame::opcode::text);
-      else
-        PLOGD << "connection closed";
-    }, resurn_slot);
+    try {
+      conn2slot_[conn_hdl] = dbus_connection_->addMatch(
+          match,
+          [&, conn_hdl](sdbus::Message msg) {
+            auto args = context_.interfaces.at(msg.getInterfaceName())
+                            .get_signal(msg.getMemberName())
+                            .args;
+            PLOGD << "get message from service: " << msg.getInterfaceName()
+                  << " member: " << msg.getMemberName();
+            nlohmann::json j = Message2Json::WrapHeader(
+                msg, Message2Json::ExtractMessage(msg, args));
+            server::connection_ptr conn =
+                ws_server_.get_con_from_hdl(conn_hdl, ec);
+            if (conn)
+              conn->send(j.dump(), websocketpp::frame::opcode::text);
+            else
+              PLOGD << "connection closed";
+          },
+          resurn_slot);
+    } catch (const std::exception& e) {
+      PLOGE << "add match failed: " << e.what();
+    }
   });
   ws_server_.set_message_handler(
       [&](auto conn_hdl, auto msg) { on_message(&ws_server_, conn_hdl, msg); });
 
-  ws_server_.set_close_handler([&](auto conn_hdl) {
-    conn2slot_.erase(conn_hdl);
-  });
+  ws_server_.set_close_handler(
+      [&](auto conn_hdl) { conn2slot_.erase(conn_hdl); });
   ws_server_.set_http_handler([](auto conn_hdl) {});
   ws_server_.set_fail_handler([](auto conn_hdl) {});
   ws_server_.set_interrupt_handler([](auto conn_hdl) {});
