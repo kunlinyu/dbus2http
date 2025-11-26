@@ -66,7 +66,6 @@ TEST_CASE("call methods", "[i][i]") {
     plog::init(plog::debug, &consoleAppender);
     first = false;
 
-
     conn = sdbus::createSessionBusConnection(
         sdbus::ServiceName(dbus2http::kEchoServiceName));
     dbus_thread = std::thread([&] {
@@ -187,10 +186,13 @@ TEST_CASE("call methods", "[i][i]") {
     run_one_case(client, request, "method_iaDiSssaSiiaDssDSSD");
   }
   SECTION("method v") {
-    run_one_case(client, "{\"arg0\":{\"variant\":\"i\",\"value\":123}}", "method_v");
+    run_one_case(client, "{\"arg0\":{\"variant\":\"i\",\"value\":123}}",
+                 "method_v");
   }
   SECTION("method iv") {
-    run_one_case(client, "{\"arg0\":123,\"arg1\":{\"variant\":\"i\",\"value\":123}}", "method_iv");
+    run_one_case(client,
+                 "{\"arg0\":123,\"arg1\":{\"variant\":\"i\",\"value\":123}}",
+                 "method_iv");
   }
   SECTION("method a{sv}") {
     std::string request = R"*(

@@ -42,6 +42,11 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
                        return Method3(config);
                      }))
       .forInterface(kExampleInterfaceName);
+  getObject()
+      .addVTable(sdbus::registerSignal("kExampleSignalName")
+                     .withParameters<std::tuple<int32_t, std::string>>(
+                         {"age", "name"}))
+      .forInterface(kExampleInterfaceName);
 }
 
 void ExampleService::Method0() { std::cout << "Method0" << std::endl; }

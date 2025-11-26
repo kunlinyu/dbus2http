@@ -2,9 +2,10 @@
 
 #include <string>
 #include <vector>
+
 #include "method.h"
-#include "signal.h"
 #include "property.h"
+#include "signal.h"
 
 namespace dbus2http {
 

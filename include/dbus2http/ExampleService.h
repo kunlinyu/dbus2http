@@ -1,6 +1,7 @@
 //
 // Created by yukunlin on 2025/11/18.
 //
+#pragma once
 #include <sdbus-c++/sdbus-c++.h>
 
 #include <map>
@@ -12,11 +13,30 @@ namespace dbus2http {
 const std::string kExampleServiceName = "com.example.ServiceName";
 const std::string kExampleInterfaceName = "com.example.InterfaceName";
 const std::string kExamleObjectPath = "/path/to/object";
+const std::string kExampleSignalName = "Signal0";
 
 class ExampleService
     : public sdbus::AdaptorInterfaces<sdbus::Properties_adaptor> {
+  std::thread signal_thread_;
+  bool stop_ = false;
+
  public:
   explicit ExampleService(sdbus::IConnection& connection);
+
+  void start() {
+    signal_thread_ = std::thread([&]() {
+      int32_t i = 0;
+      while (not stop_) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        getObject()
+            .emitSignal("kExampleSignalName")
+            .onInterface(kExampleInterfaceName)
+            .withArguments(i++, "hello world");
+      }
+    });
+  }
+
+  void stop() { stop_ = true; }
 
  private:
   // dbus-send --session --print-reply --type=method_call

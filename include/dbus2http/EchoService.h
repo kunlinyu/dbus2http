@@ -6,8 +6,10 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 
-#include <string>
 #include <iostream>
+#include <string>
+
+#include "ExampleService.h"
 
 namespace dbus2http {
 
@@ -16,13 +18,13 @@ const std::string kEchoInterfaceName = "com.test.InterfaceName";
 const std::string kEchoObjectPath = "/path/to/object";
 
 class EchoService : public sdbus::AdaptorInterfaces<> {
-
  public:
   explicit EchoService(sdbus::IConnection& connection)
       : AdaptorInterfaces(connection, sdbus::ObjectPath(kEchoObjectPath)) {
     getObject()
         .addVTable(sdbus::registerMethod("method").implementedAs([] {}))
         .forInterface(kEchoInterfaceName);
+
     AddMethod("method_b", "b", {"arg0"});  // boolean
     AddMethod("method_y", "y", {"arg0"});  // byte
     AddMethod("method_n", "n", {"arg0"});  // int16
@@ -33,7 +35,6 @@ class EchoService : public sdbus::AdaptorInterfaces<> {
     AddMethod("method_t", "t", {"arg0"});  // uint64
     AddMethod("method_d", "d", {"arg0"});  // double
     AddMethod("method_s", "s", {"arg0"});  // string
-    // TODO: v
     AddMethod("method_SisS", "(is)", {"arg0"});
     AddMethod("method_Sbynqiuxtds", "(bynqiuxtds)", {"arg0"});
     AddMethod("method_ai", "ai", {"arg0"});
@@ -42,10 +43,13 @@ class EchoService : public sdbus::AdaptorInterfaces<> {
     AddMethod("method_aDssD", "a{ss}", {"arg0"});
     AddMethod("method_aDiiD", "a{ii}", {"arg0"});
     AddMethod("method_isaDsiD", "isa{si}", {"arg0", "arg1", "arg2"});
-    AddMethod("method_iaDiSssaSiiaDssDSSD", "ia{i(ssa(iia{ss}))}", {"arg0", "arg1"});
+    AddMethod("method_iaDiSssaSiiaDssDSSD", "ia{i(ssa(iia{ss}))}",
+              {"arg0", "arg1"});
     AddMethod("method_v", "v", {"arg0"});
     AddMethod("method_iv", "iv", {"arg0", "arg1"});
     AddMethod("method_aDsvD", "a{sv}", {"arg0"});
+
+    AddSignal("signal_is", "is", {"arg0", "arg1"});
   }
   void AddMethod(const std::string& method_name,
                  const std::string& signature_in_out,
@@ -63,6 +67,15 @@ class EchoService : public sdbus::AdaptorInterfaces<> {
       PLOGI << "method: " << method_name;
     };
     getObject().addVTable(method_item).forInterface(kEchoInterfaceName);
+  }
+  void AddSignal(const std::string& signal_name,
+                 const std::string& signature,
+                 const std::vector<std::string>& param_names) {
+    sdbus::SignalVTableItem signal_item;
+    signal_item.name = signal_name;
+    signal_item.signature = signature;
+    signal_item.paramNames = param_names;
+    getObject().addVTable(signal_item).forInterface(kEchoInterfaceName);
   }
 };
 

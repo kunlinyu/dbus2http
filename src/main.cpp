@@ -26,7 +26,9 @@ void RunExample(const std::unique_ptr<sdbus::IConnection>& connection) {
     dbus2http::ExampleService service(*connection);
     dbus2http::EchoService service2(*connection);
 
+    service.start();
     connection->enterEventLoop();
+    service.stop();
   } catch (const sdbus::Error& e) {
     PLOGE << "start example service failed: " << e.what();
   }
@@ -38,7 +40,7 @@ int main(int argc, char* argv[]) {
   std::signal(SIGTERM, handle_sigint);
 
   // initialize logging
-  static plog::ConsoleAppender<dbus2http::FileLineFormatter> consoleAppender;
+  static plog::ColorConsoleAppender<dbus2http::FileLineFormatter> consoleAppender;
   plog::init(plog::debug, &consoleAppender);
 
   // parse arguments
