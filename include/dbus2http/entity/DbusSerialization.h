@@ -104,26 +104,26 @@ class Dbus2Html {
     oss << "<details>";
     oss << "<summary>" << op.path << "</summary>";
     for (const auto& interface : op.interfaces)
-      oss << "<p>" << "<a href=\"" << "/dbus/interface/html/" << interface << "\">"
-          << interface << "</a>" << "</p>";
+      oss << "<p>" << "<a target=\"_blank\" href=\"" << "/dbus/interface/html/"
+          << interface << "\">" << interface << "</a>" << "</p>";
     oss << "</details>";
     return oss.str();
   };
   static std::string to_html(const Interface& interface) {
     std::ostringstream oss;
-    oss << "<details>";
+    oss << "<details open>";
     oss << "<summary>" << interface.name << "</summary>";
-    oss << "<details><summary>Methods</summary>";
+    oss << "<details open><summary>Methods</summary>";
     for (const auto& [method_name, method] : interface.methods) {
       oss << to_html(method);
     }
     oss << "</details>";
-    oss << "<details><summary>Signals</summary>";
+    oss << "<details open><summary>Signals</summary>";
     for (const auto& [signal_name, signal] : interface.signals) {
       oss << to_html(signal);
     }
     oss << "</details>";
-    oss << "<details><summary>Properties</summary>";
+    oss << "<details open><summary>Properties</summary>";
     for (const auto& [property_name, property] : interface.properties) {
       oss << to_html(property);
     }
