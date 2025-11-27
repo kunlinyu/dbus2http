@@ -35,7 +35,7 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
           match,
           [&, conn_hdl](sdbus::Message msg) {
             auto args = context_.interfaces.at(msg.getInterfaceName())
-                            .get_signal(msg.getMemberName())
+                            .get<Signal>(msg.getMemberName())
                             .args;
             PLOGD << "get message from service: " << msg.getInterfaceName()
                   << " member: " << msg.getMemberName();

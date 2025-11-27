@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
+#include "flags.h"
 #include "method.h"
 #include "property.h"
 #include "signal.h"
@@ -11,31 +11,42 @@ namespace dbus2http {
 
 struct Interface {
   std::string name;
-  std::vector<Method> methods;
-  std::vector<Signal> signals;
-  std::vector<Property> properties;
+  std::map<std::string, Method> methods;
+  std::map<std::string, Signal> signals;
+  std::map<std::string, Property> properties;
+  Flags flags;
 
   Interface() = default;
-  explicit Interface(const std::string& name) : name(name) {}
 
-  void add(const Method& m) { methods.push_back(m); }
-  void add(const Signal& s) { signals.push_back(s); }
-  void add(const Property& p) { properties.push_back(p); }
+  template <typename T>
+  void add(const T& m) {
+    get_container<T>()[m.name] = m;
+  }
 
-  const Method& get_method(const std::string& method_name) const {
-    for (const auto& m : methods)
-      if (m.name == method_name) return m;
-    throw std::invalid_argument("Method not found: " + method_name);
+  template <typename T>
+  [[nodiscard]] const T& get(const std::string& member_name) const {
+    if (get_container<T>().contains(member_name))
+      return get_container<T>().at(member_name);
+    throw std::invalid_argument("member not found: " + member_name);
   }
-  const Signal& get_signal(const std::string& signal_name) const {
-    for (const auto& s : signals)
-      if (s.name == signal_name) return s;
-    throw std::invalid_argument("Signal not found: " + signal_name);
+
+ private:
+  template <typename T>
+  std::map<std::string, T>& get_container() {
+    return const_cast<std::map<std::string, T>&>(
+        static_cast<const Interface*>(this)->get_container<T>());
   }
-  const Property& get_property(const std::string& property_name) const {
-    for (const auto& p : properties)
-      if (p.name == property_name) return p;
-    throw std::invalid_argument("Property not found: " + property_name);
+  template <typename T>
+  const std::map<std::string, T>& get_container() const {
+    if constexpr (std::is_same_v<T, Method>) {
+      return methods;
+    } else if constexpr (std::is_same_v<T, Signal>) {
+      return signals;
+    } else if constexpr (std::is_same_v<T, Property>) {
+      return properties;
+    } else {
+      throw std::invalid_argument("unknown member type");
+    }
   }
 };
 

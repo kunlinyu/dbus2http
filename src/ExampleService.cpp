@@ -11,7 +11,7 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
     : AdaptorInterfaces(connection, sdbus::ObjectPath(kExamleObjectPath)) {
   registerAdaptor();
   getObject()
-      .addVTable(sdbus::registerMethod("Method0").implementedAs(
+      .addVTable(sdbus::registerMethod("Method0").withNoReply().implementedAs(
           [] { return Method0(); }))
       .forInterface(kExampleInterfaceName);
   getObject()
@@ -43,9 +43,28 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
                      }))
       .forInterface(kExampleInterfaceName);
   getObject()
-      .addVTable(sdbus::registerSignal("kExampleSignalName")
+      .addVTable(sdbus::registerSignal(kExampleSignalName)
                      .withParameters<std::tuple<int32_t, std::string>>(
                          {"age", "name"}))
+      .forInterface(kExampleInterfaceName);
+  getObject()
+      .addVTable(sdbus::registerProperty("Prop0")
+                     .withGetter([&]() { return prop0_; })
+                     .markAsDeprecated())
+      .forInterface(kExampleInterfaceName);
+  getObject()
+      .addVTable(sdbus::registerProperty("Prop1")
+                     .withSetter([&](const int& arg) { prop1_ = arg; })
+                     .markAsPrivileged())
+      .forInterface(kExampleInterfaceName);
+  getObject()
+      .addVTable(
+          sdbus::registerProperty("Prop2")
+              .withSetter(
+                  [&](const std::map<int, std::string>& arg) { prop2_ = arg; })
+              .withGetter([&]() { return prop2_; })
+              .withUpdateBehavior(
+                  sdbus::Flags::PropertyUpdateBehaviorFlags::EMITS_NO_SIGNAL))
       .forInterface(kExampleInterfaceName);
 }
 

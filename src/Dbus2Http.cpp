@@ -25,13 +25,15 @@ void Dbus2Http::start(int port) {
                                         return op.interfaces.empty();
                                       }),
                        object_paths.end());
-    nlohmann::json j;
-    for (const auto& op : object_paths) j[op.path] = op;
   }
 
   dbus_caller_ = std::make_unique<DbusCaller>(context_, system_);
   service_ = std::make_unique<WebService>(*dbus_caller_);
   service_thread_ = std::thread([&] { service_->run(port); });
+  nlohmann::json j;
+  j["object_paths"] = context_.object_paths;
+  j["interfaces"] = context_.interfaces;
+  PLOGI << j.dump();
   PLOGI << "dbus2http started on port " << port << "...";
 }
 

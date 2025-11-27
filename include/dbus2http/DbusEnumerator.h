@@ -29,10 +29,11 @@ class DbusEnumerator {
   std::vector<ObjectPath> parse_object_paths_recursively(
       const std::string& service_name, const std::string& path) {
     const std::string xml = introspect_service(service_name, path);
+    PLOGD << xml;
     ObjectPath object = DbusSerialization::parse_single_object_path(xml, path, context_);
     std::vector<ObjectPath> result;
     result.emplace_back(object);
-    context_.object_paths[service_name][object.path] = object;
+    context_.add(service_name, object);
     PLOGI << service_name << "  " << object.path;
     for (const auto& child : object.children_paths) {
       std::string child_path = path + (path == "/" ? "" : "/") + child;

@@ -3,6 +3,7 @@
 //
 
 #include <dbus2http/entity/DbusSerialization.h>
+#include <plog/Log.h>
 
 namespace dbus2http {
 
@@ -43,28 +44,30 @@ ObjectPath DbusSerialization::parse_single_object_path(
 
 Interface DbusSerialization::parse_interface(
     const tinyxml2::XMLElement* iface_node) {
-  Interface iface;
-  if (!iface_node) return iface;
+  Interface interface;
+  if (!iface_node) return interface;
 
   const char* name_attr = iface_node->Attribute("name");
-  if (name_attr) iface.name = name_attr;
+  if (name_attr) interface.name = name_attr;
 
   for (const auto* method = iface_node->FirstChildElement("method"); method;
        method = method->NextSiblingElement("method")) {
-    iface.add(parse_method(method));
+    interface.add(parse_method(method));
   }
 
   for (const auto* signal = iface_node->FirstChildElement("signal"); signal;
        signal = signal->NextSiblingElement("signal")) {
-    iface.add(parse_signal(signal));
+    interface.add(parse_signal(signal));
   }
 
   for (const auto* prop = iface_node->FirstChildElement("property"); prop;
        prop = prop->NextSiblingElement("property")) {
-    iface.add(parse_property(prop));
+    interface.add(parse_property(prop));
   }
 
-  return iface;
+  interface.flags = parse_flags(iface_node);
+
+  return interface;
 }
 
 Method DbusSerialization::parse_method(
@@ -79,6 +82,7 @@ Method DbusSerialization::parse_method(
        arg = arg->NextSiblingElement("arg")) {
     m.add(parse_argument(arg));
   }
+  m.flags = parse_flags(method_node);
   return m;
 }
 
@@ -94,6 +98,7 @@ Signal DbusSerialization::parse_signal(
        arg = arg->NextSiblingElement("arg")) {
     s.add(parse_argument(arg));
   }
+  s.flags = parse_flags(signal_node);
   return s;
 }
 
@@ -109,6 +114,8 @@ Property DbusSerialization::parse_property(
   if (name_attr) p.name = name_attr;
   if (type_attr) p.type = type_attr;
   if (access_attr) p.access = access_attr;
+
+  p.flags = parse_flags(prop_node);
   return p;
 }
 
@@ -124,7 +131,62 @@ Argument DbusSerialization::parse_argument(
   if (name_attr) a.name = name_attr;
   if (type_attr) a.type = type_attr;
   if (dir_attr) a.direction = dir_attr;
+
+  a.flags = parse_flags(arg_node);
   return a;
 }
 
+Flags DbusSerialization::parse_flags(const tinyxml2::XMLElement* parent_node) {
+  Flags flags;
+  if (!parent_node) return flags;
+  for (const auto* annotation = parent_node->FirstChildElement("annotation");
+       annotation; annotation = annotation->NextSiblingElement("annotation")) {
+    const char* name_attr = annotation->Attribute("name");
+    const char* value_attr = annotation->Attribute("value");
+    if (name_attr == nullptr || value_attr == nullptr) {
+      PLOGW << "annotation missing name or value attribute";
+      continue;
+    }
+    std::string name = std::string(name_attr);
+    std::string value = std::string(value_attr);
+    if (name == "org.freedesktop.DBus.Deprecated") {
+      if (value == "true")
+        flags.deprecated = true;
+      else if (value == "false")
+        flags.deprecated = false;
+      else
+        PLOGW << "unrecognized value for annotation "
+                 "org.freedesktop.DBus.Deprecated: "
+              << value_attr;
+    } else if (name == "org.freedesktop.DBus.Method.NoReply") {
+      if (value == "true")
+        flags.method_no_reply = true;
+      else if (value == "false")
+        flags.method_no_reply = false;
+      else
+        PLOGW << "unrecognized value for annotation "
+                 "org.freedesktop.DBus.Method.NoReply: "
+              << value_attr;
+    } else if (name == "org.freedesktop.DBus.Property.EmitsChangedSignal") {
+      if (value == "true")
+        flags.emits_changed_signal = TRUE;
+      else if (value == "false")
+        flags.emits_changed_signal = FALSE;
+      else if (value == "invalidates")
+        flags.emits_changed_signal = INVALIDATES;
+      else if (value == "const")
+        flags.emits_changed_signal = CONST;
+      else
+        PLOGW << "unrecognized value for annotation "
+                 "org.freedesktop.DBus.Property.EmitsChangedSignal: "
+              << value_attr;
+    } else if (name == "org.freedesktop.DBus.GLib.CSymbol") {
+      flags.c_symbol = value_attr;
+    } else {
+      PLOGW << "unrecognized annotation: " << name_attr;
+    }
+  }
+  return flags;
 }
+
+}  // namespace dbus2http

@@ -56,6 +56,7 @@ void run_one_case(httplib::Client& client, const std::string& request,
   nlohmann::json req_j = nlohmann::json::parse(request);
   REQUIRE(res->body == req_j.dump());
 }
+
 static plog::ConsoleAppender<FileLineFormatter> consoleAppender;
 std::unique_ptr<sdbus::IConnection> conn;
 std::thread dbus_thread;

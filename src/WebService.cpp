@@ -79,8 +79,8 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     std::string suffix = req.matches[1];
     if (suffix.find('/') == std::string::npos) {
       const std::string& service_name = suffix;
-      if (caller_.context().object_paths.contains(service_name)) {
-        nlohmann::json j = caller_.context().object_paths.at(service_name);
+      if (caller_.context().contains_service(service_name)) {
+        nlohmann::json j = caller_.context().object_paths_of_service(service_name);
         res.set_content(j.dump(2), "application/json");
       } else {
         res.status = 404;

@@ -8,6 +8,7 @@ struct Property {
   std::string name;
   std::string type;
   std::string access;
+  Flags flags;
 
   Property() = default;
   Property(const std::string& name, const std::string& type,

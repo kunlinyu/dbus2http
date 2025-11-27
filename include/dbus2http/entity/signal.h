@@ -9,6 +9,7 @@ namespace dbus2http {
 struct Signal {
   std::string name;
   std::vector<Argument> args;
+  Flags flags;
 
   Signal() = default;
   explicit Signal(const std::string& name) : name(name) {}

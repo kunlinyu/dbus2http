@@ -20,6 +20,10 @@ class ExampleService
   std::thread signal_thread_;
   bool stop_ = false;
 
+  std::string prop0_ = "initial_value";
+  int prop1_ = 42;
+  std::map<int, std::string> prop2_ = {};
+
  public:
   explicit ExampleService(sdbus::IConnection& connection);
 
@@ -36,7 +40,10 @@ class ExampleService
     });
   }
 
-  void stop() { stop_ = true; }
+  void stop() {
+    stop_ = true;
+    if (signal_thread_.joinable()) signal_thread_.join();
+  }
 
  private:
   // dbus-send --session --print-reply --type=method_call
