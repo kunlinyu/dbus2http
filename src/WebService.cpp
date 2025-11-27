@@ -47,6 +47,24 @@ bool WebService::parse_dbus_request_path(const std::string& path,
 }
 
 WebService::WebService(DbusCaller& caller) : caller_(caller) {
+  std::string header = R"(
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    details, p {
+      margin-left: 20px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+)";
+  std::string footer = R"(
+</body>
+</html>
+)";
   server_.Post("/echo", [](const auto& req, auto& res) {
     res.set_content(req.body, "text/plain");
   });
@@ -61,6 +79,24 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       j["services"].push_back(service_name);
     }
     res.set_content(j.dump(), "application/json");
+  });
+  server_.Get("/dbus/html", [&, header, footer](const auto& req, auto& res) {
+    res.set_content(
+        header + Dbus2Html::to_html(caller_.context().object_paths) + footer,
+        "text/html");
+  });
+  server_.Get(R"(/dbus/interface/html/(.*))", [&, header, footer](const auto& req, auto& res) {
+    std::string suffix = req.matches[1];
+    if (suffix.find('/') == std::string::npos) {
+      const std::string& interface_name = suffix;
+      if (caller_.context().interfaces.contains(interface_name)) {
+        const Interface& interface = caller_.context().interfaces.at(interface_name);
+        res.set_content(header + Dbus2Html::to_html(interface) + footer, "text/html");
+      } else {
+        res.status = 404;
+        res.set_content("interface not found", "text/plain");
+      }
+    }
   });
   server_.Get(R"(/dbus/interface/(.*))", [this](const auto& req, auto& res) {
     std::string suffix = req.matches[1];
@@ -80,7 +116,8 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     if (suffix.find('/') == std::string::npos) {
       const std::string& service_name = suffix;
       if (caller_.context().contains_service(service_name)) {
-        nlohmann::json j = caller_.context().object_paths_of_service(service_name);
+        nlohmann::json j =
+            caller_.context().object_paths_of_service(service_name);
         res.set_content(j.dump(2), "application/json");
       } else {
         res.status = 404;
