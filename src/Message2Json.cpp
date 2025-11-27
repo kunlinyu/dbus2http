@@ -43,7 +43,7 @@ nlohmann::json Message2Json::ExtractVariant(sdbus::Message& message) {
 
 nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
                                             const std::string& sig) {
-  PLOGD << "ExtractMethod sig: " << sig;
+  PLOGD << "ExtractMessage sig: " << sig;
   std::vector<std::string> complete_sigs = SignatureUtils::split(sig);
   if (complete_sigs.size() > 1) {
     nlohmann::json result = nlohmann::json::array();

@@ -24,7 +24,7 @@ struct Method {
   [[nodiscard]] std::vector<Argument> in_args() const {
     std::vector<Argument> result;
     for (const auto& arg : args)
-      if (arg.direction == "out") result.push_back(arg);
+      if (arg.direction == "in") result.push_back(arg);
     return result;
   }
 };
