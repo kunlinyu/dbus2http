@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
 
   dbus2http::SignalSocket signal_socket(dbus2http.getContext(),
                                         program.get<bool>("--system"));
-
   signal_socket.start();
+
   while (g_running.load()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }

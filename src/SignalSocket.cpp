@@ -6,6 +6,8 @@
 
 namespace dbus2http {
 
+using websocketpp::log::alevel;
+
 SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
     : context_(context) {
   ws_server_.init_asio();
@@ -29,26 +31,37 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
     PLOGD << "match : " << match;
     match = replaceAll(match, "%27", "'");
     PLOGD << "match : " << match;
-    sdbus::return_slot_t resurn_slot;
     try {
       conn2slot_[conn_hdl] = dbus_connection_->addMatch(
           match,
           [&, conn_hdl](sdbus::Message msg) {
-            auto args = context_.interfaces.at(msg.getInterfaceName())
-                            .get<Signal>(msg.getMemberName())
-                            .args;
             PLOGD << "get message from service: " << msg.getInterfaceName()
                   << " member: " << msg.getMemberName();
+            std::vector<Argument> args;
+            try {
+              args =
+                  context_
+                      .get<Signal>(msg.getInterfaceName(), msg.getMemberName())
+                      .args;
+            } catch (const std::invalid_argument& e) {
+              PLOGW << "unknown signal: " << msg.getInterfaceName() << "."
+                    << msg.getMemberName() << ", exception: " << e.what();
+              return;
+            }
+
             nlohmann::json j = Message2Json::WrapHeader(
                 msg, Message2Json::ExtractMessage(msg, args));
             server::connection_ptr conn =
                 ws_server_.get_con_from_hdl(conn_hdl, ec);
-            if (conn)
-              conn->send(j.dump(), websocketpp::frame::opcode::text);
-            else
+            if (conn) {
+              ec = conn->send(j.dump(), websocketpp::frame::opcode::text);
+              if (ec) {
+                PLOGE << "send error: " << ec.message();
+              }
+            } else
               PLOGD << "connection closed";
           },
-          resurn_slot);
+          sdbus::return_slot_t());
     } catch (const std::exception& e) {
       PLOGE << "add match failed: " << e.what();
     }
@@ -69,6 +82,15 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
 
   ws_server_.start_accept();
 
+#ifdef NDEBUG
+  ws_server_.clear_access_channels(alevel::all);
+  ws_server_.clear_error_channels(alevel::all);
+  ws_server_.set_access_channels(alevel::connect | alevel::disconnect |
+                                 alevel::fail);
+#else
+  ws_server_.set_access_channels(alevel::all);
+  ws_server_.set_error_channels(alevel::all);
+#endif
   dbus_connection_ = DbusUtils::createConnection(system);
 }
 

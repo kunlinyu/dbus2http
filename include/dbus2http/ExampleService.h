@@ -33,7 +33,7 @@ class ExampleService
       while (not stop_) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         getObject()
-            .emitSignal("kExampleSignalName")
+            .emitSignal(kExampleSignalName)
             .onInterface(kExampleInterfaceName)
             .withArguments(i++, "hello world");
       }
