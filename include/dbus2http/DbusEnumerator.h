@@ -29,7 +29,6 @@ class DbusEnumerator {
   std::vector<ObjectPath> parse_object_paths_recursively(
       const std::string& service_name, const std::string& path) {
     const std::string xml = introspect_service(service_name, path);
-    PLOGD << xml;
     ObjectPath object = DbusSerialization::parse_single_object_path(xml, path, context_);
     std::vector<ObjectPath> result;
     result.emplace_back(object);
