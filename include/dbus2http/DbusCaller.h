@@ -14,6 +14,7 @@
 #include "DbusUtils.h"
 #include "Json2Message.h"
 #include "Message2Json.h"
+#include "Rand2Json.h"
 #include "entity/InterfaceContext.h"
 
 namespace dbus2http {
@@ -29,6 +30,14 @@ class DbusCaller {
   }
 
   const InterfaceContext& context() const { return context_; }
+
+  [[nodiscard]] nlohmann::json RandRequest(const std::string& service_name,
+                                    const std::string& object_path,
+                                    const std::string& interface_name,
+                                    const std::string& method_name) const {
+    const auto& method_type = context_.get<Method>(interface_name, method_name);
+    return Rand2Json::RandJson(method_type.in_args());
+  }
 
   [[nodiscard]] nlohmann::json Call(const std::string& service_name,
                                     const std::string& object_path,

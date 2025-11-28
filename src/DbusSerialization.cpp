@@ -188,5 +188,106 @@ Flags DbusSerialization::parse_flags(const tinyxml2::XMLElement* parent_node) {
   }
   return flags;
 }
+std::string Dbus2Html::to_html(
+    const std::map<std::string, std::map<std::string, ObjectPath>>&
+        object_paths) {
+  std::ostringstream oss;
+  for (const auto& [service_name, paths] : object_paths) {
+    oss << "<details>";
+    oss << "<summary>" << service_name << "</summary>";
+    for (const auto& [path, op] : paths) oss << to_html(op, service_name);
+    oss << "</details>";
+  }
+  return oss.str();
+}
+std::string Dbus2Html::to_html(const ObjectPath& op,
+                               const std::string& service_name) {
+  std::ostringstream oss;
+  oss << "<details>";
+  oss << "<summary>" << op.path << "</summary>";
+  for (const auto& interface : op.interfaces) {
+    oss << "<p>" << "<a target=\"_blank\" href=\"" << "/dbus/interface/html/"
+        << interface;
+    oss << "?object_path=" << op.path;
+    oss << "&interface_name=" << interface;
+    if (not service_name.empty()) oss << "&service_name=" << service_name;
+    oss << "\">" << interface << "</a>" << "</p>";
+  }
+  oss << "</details>";
+  return oss.str();
+}
+std::string Dbus2Html::to_html(const Interface& interface) {
+  std::ostringstream oss;
+  oss << "<details open>";
+  oss << "<summary>" << interface.name << "</summary>";
+  oss << "<details open><summary>Methods</summary>";
+  for (const auto& [method_name, method] : interface.methods) {
+    oss << to_html(method);
+  }
+  oss << "</details>";
+  oss << "<details open><summary>Signals</summary>";
+  for (const auto& [signal_name, signal] : interface.signals) {
+    oss << to_html(signal);
+  }
+  oss << "</details>";
+  oss << "<details open><summary>Properties</summary>";
+  for (const auto& [property_name, property] : interface.properties) {
+    oss << to_html(property);
+  }
+  oss << "</details>";
+  oss << "</details>";
+  std::string try_jump = R"(
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const object_path = params.get('object_path');
+    const service_name = params.get('service_name');
+    const interface_name = params.get('interface_name');
+    const dynamicLinks = document.querySelectorAll('.try-method');
+    dynamicLinks.forEach(link => {
+      const method = link.textContent.trim();
+      link.href = `/dbus/try/${service_name}${object_path}/${interface_name}.${method}`;
+    });
+  </script>
+)";
+  oss << try_jump;
+  return oss.str();
+}
+std::string Dbus2Html::to_html(const Method& method) {
+  std::ostringstream oss;
+  oss << "<details>";
+  oss << "<summary>";
+  oss << "<a class=\"try-method\" target=\"_blank\">" << method.name << "</a>";
+  oss << to_html(method.flags);
+  oss << "</summary>";
+  for (const auto& arg : method.args) {
+    oss << "<p>" << arg.name << "[" << arg.direction << "]: " << arg.type
+        << "</p>";
+  }
+  oss << "</details>";
+  return oss.str();
+}
+std::string Dbus2Html::to_html(const Signal& signal) {
+  std::ostringstream oss;
+  oss << "<details>";
+  oss << "<summary>" << signal.name << to_html(signal.flags) << "</summary>";
+  for (const auto& arg : signal.args) {
+    oss << "<p>" << arg.name << ": " << arg.name << "</p>";
+  }
+  oss << "</details>";
+  return oss.str();
+}
+std::string Dbus2Html::to_html(const Property& property) {
+  std::ostringstream oss;
+  oss << "<p>" << property.name << "[" << property.access << "]"
+      << to_html(property.flags) << " : " << property.type << "</p>";
+  return oss.str();
+}
+std::string Dbus2Html::to_html(const Flags& flags) {
+  std::ostringstream oss;
+  if (flags.deprecated) oss << "(deprecated)";
+  if (flags.method_no_reply) oss << "(no reply)";
+  if (flags.privileged) oss << "(privileged)";
+  return oss.str();
+}
 
 }  // namespace dbus2http

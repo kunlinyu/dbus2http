@@ -15,7 +15,7 @@ namespace dbus2http {
 class Message2Json {
  public:
   static nlohmann::json ExtractMessage(
-      sdbus::Message& message, const std::vector<Argument>& method_type);
+      sdbus::Message& message, const std::vector<Argument>& args);
 
   static nlohmann::json ExtractVariant(sdbus::Message& message);
 

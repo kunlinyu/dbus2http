@@ -65,7 +65,7 @@ class SignalSocket {
                   server::message_ptr msg);
 
  private:
-  std::string replaceAll(const std::string input, const std::string& from,
+  std::string replaceAll(const std::string& input, const std::string& from,
                          const std::string& to) {
     std::string result = input;
     size_t pos = 0;
