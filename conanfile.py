@@ -10,7 +10,7 @@ class ConanApplication(ConanFile):
     generators = "CMakeDeps"
 
     def layout(self):
-        cmake_layout(self)
+        cmake_layout(self, build_folder=f"build/{self.settings.arch}")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -21,3 +21,7 @@ class ConanApplication(ConanFile):
         requirements = self.conan_data.get('requirements', [])
         for requirement in requirements:
             self.requires(requirement)
+
+    def configure(self):
+        self.options["sdbus-cpp"].with_sdbus = "basu"
+        self.options["basu"].with_libcap = False

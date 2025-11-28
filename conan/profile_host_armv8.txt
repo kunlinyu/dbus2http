@@ -1,0 +1,12 @@
+[settings]
+arch=armv8
+build_type=Release
+compiler=gcc
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+compiler.version=11
+os=Linux
+
+[conf]
+# tools.build:compiler_executables={"c": "/usr/bin/aarch64-linux-gnu-gcc", "cpp": "/usr/bin/aarch64-linux-gnu-g++"}
+tools.build:compiler_executables={"c": "/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc", "cpp": "/aarch64-linux-musl-cross/bin/aarch64-linux-musl-g++"}
