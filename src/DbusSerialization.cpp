@@ -206,7 +206,7 @@ std::string Dbus2Html::to_html(const ObjectPath& op,
   oss << "<details>";
   oss << "<summary>" << op.path << "</summary>";
   for (const auto& interface : op.interfaces) {
-    oss << "<p>" << "<a target=\"_blank\" href=\"" << "/dbus/interface/html/"
+    oss << "<p>" << "<a href=\"" << "/dbus/interface/html/"
         << interface;
     oss << "?object_path=" << op.path;
     oss << "&interface_name=" << interface;
@@ -256,7 +256,7 @@ std::string Dbus2Html::to_html(const Method& method) {
   std::ostringstream oss;
   oss << "<details>";
   oss << "<summary>";
-  oss << "<a class=\"try-method\" target=\"_blank\">" << method.name << "</a>";
+  oss << "<a class=\"try-method\">" << method.name << "</a>";
   oss << to_html(method.flags);
   oss << "</summary>";
   for (const auto& arg : method.args) {
@@ -270,7 +270,7 @@ std::string Dbus2Html::to_html(const Signal& signal) {
   std::ostringstream oss;
   oss << "<details>";
   oss << "<summary>";
-  oss << "<a target=\"_blank\" href=\"" << "/dbus/matchrule";
+  oss << "<a href=\"" << "/dbus/matchrule";
   oss << "?member=" << signal.name;
   oss << "\">";
   oss << signal.name;
