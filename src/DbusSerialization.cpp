@@ -269,9 +269,17 @@ std::string Dbus2Html::to_html(const Method& method) {
 std::string Dbus2Html::to_html(const Signal& signal) {
   std::ostringstream oss;
   oss << "<details>";
-  oss << "<summary>" << signal.name << to_html(signal.flags) << "</summary>";
+  oss << "<summary>";
+  oss << "<a target=\"_blank\" href=\"" << "/dbus/matchrule";
+  oss << "?member=" << signal.name;
+  oss << "\">";
+  oss << signal.name;
+  oss << "</a>";
+  oss << to_html(signal.flags);
+  oss << "</summary>";
   for (const auto& arg : signal.args) {
     oss << "<p>" << arg.name << ": " << arg.name << "</p>";
+
   }
   oss << "</details>";
   return oss.str();

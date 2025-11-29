@@ -29,7 +29,10 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
     std::string match = query.substr(6);
     PLOGI << "WebSocket connection opened with query: " << query;
     PLOGD << "match : " << match;
+    match = replaceAll(match, "%20", " ");
     match = replaceAll(match, "%27", "'");
+    match = replaceAll(match, "%2C", ",");
+    match = replaceAll(match, "%3D", "=");
     PLOGD << "match : " << match;
     try {
       conn2slot_[conn_hdl] = dbus_connection_->addMatch(

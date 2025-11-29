@@ -55,6 +55,7 @@ class SignalSocket {
   }
 
   void stop() {
+    ws_server_.stop_listening();
     ws_server_.stop();
     if (ws_server_thread_.joinable()) ws_server_thread_.join();
     dbus_connection_->leaveEventLoop();

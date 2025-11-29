@@ -8,6 +8,8 @@
 
 namespace dbus2http {
 
+#include "match_rule.inc"
+
 bool WebService::parse_dbus_request_path(const std::string& path,
                                          std::string& service_name,
                                          std::string& object_path,
@@ -228,6 +230,10 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       PLOGE << "exception: " << what;
       res.set_content(R"({"message": ")" + what + "\"}", "application/json");
     }
+  });
+  server_.Get(R"(/dbus/matchrule(.*))", [](const auto&, auto& res) {
+    res.status = 200;
+    res.set_content(match_rule_html, "text/html");
   });
   server_.set_logger([](const auto& req, const auto& res) {
     // Timestamp
