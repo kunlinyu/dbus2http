@@ -2,7 +2,7 @@ FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-COPY source.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources
+COPY docker/source.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources
 RUN apt-get update
 
 # install basic tools
@@ -40,32 +40,23 @@ RUN tar xzvf /aarch64-linux-musl-cross.tgz
 USER ubuntu
 WORKDIR /home/ubuntu/
 
-COPY --chown=ubuntu conan/global.conf global.conf
+COPY --chown=ubuntu docker/conan/global.conf global.conf
 RUN conan config install global.conf
 
-COPY --chown=ubuntu conan/profile_build.txt profile_build.txt
-COPY --chown=ubuntu conan/profile_host_armv8.txt profile_host_armv8.txt
-COPY --chown=ubuntu conan/profile_host_x86_64.txt profile_host_x86_64.txt
+COPY --chown=ubuntu docker/conan/profile_build.txt .conan2/profiles/default
+COPY --chown=ubuntu docker/conan/profile_host_armv8.txt profile_host_armv8.txt
+COPY --chown=ubuntu docker/conan/profile_host_x86_64.txt profile_host_x86_64.txt
 
 COPY --chown=ubuntu conandata.yml conandata.yml
 COPY --chown=ubuntu conanfile.py conanfile.py
 
-RUN conan install conanfile.py --build=missing --profile:build=profile_build.txt --profile:host=profile_host_x86_64.txt \
+RUN conan install --build=missing --profile:host=profile_host_x86_64.txt \
     && conan cache clean --source --build --download --temp
 
-COPY --chown=ubuntu conan_download_cache conan_download_cache
-RUN conan install conanfile.py --build=missing --profile:build=profile_build.txt --profile:host=profile_host_armv8.txt \
+RUN conan install --build=missing --profile:host=profile_host_armv8.txt \
     && conan cache clean --source --build --download --temp
 
-COPY --chown=ubuntu conan_download_cache conan_download_cache
-RUN conan install conanfile.py --build=missing --profile:build=profile_build.txt --profile:host=profile_host_armv8.txt \
+RUN conan install --build=missing --profile:host=profile_host_x86_64.txt \
     --settings:host="build_type=Debug" \
     && conan cache clean --source --build --download --temp
-
-# cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/ubuntu/conan_out_x86_64/build/Release/generators/
-# -DCMAKE_PREFIX_PATH=/home/ubuntu/conan_out_x86_64/build/Release/generators/ ..
-
-
-
-
 
