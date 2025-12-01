@@ -168,7 +168,7 @@ std::string match_rule_html = R"DELIMETER====(
         }
 
         // Create WebSocket with dynamic URL
-        const wsUrl = `ws://localhost:9002/ws?match=${matchRule}`; // Replace server_address with actual host
+        const wsUrl = `ws://localhost:9090/ws?match=${matchRule}`; // Replace server_address with actual host
         ws = new WebSocket(wsUrl);
 
         // WebSocket event handlers

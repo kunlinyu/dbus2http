@@ -46,7 +46,7 @@ class SignalSocket {
   const InterfaceContext& context_;
 
  public:
-  SignalSocket(const InterfaceContext& context, bool system);
+  SignalSocket(const InterfaceContext& context, bool system, int port);
 
   void start() {
     ws_server_thread_ = std::thread([&]() { ws_server_.run(); });

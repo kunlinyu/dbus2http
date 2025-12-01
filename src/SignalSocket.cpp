@@ -8,7 +8,7 @@ namespace dbus2http {
 
 using websocketpp::log::alevel;
 
-SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
+SignalSocket::SignalSocket(const InterfaceContext& context, bool system, int port)
     : context_(context) {
   ws_server_.init_asio();
   ws_server_.set_open_handler([&](auto conn_hdl) {
@@ -81,7 +81,7 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system)
   ws_server_.set_pong_handler([](auto conn_hdl, auto msg) {});
   ws_server_.set_pong_timeout_handler([](auto conn_hdl, auto msg) {});
 
-  ws_server_.listen(9002);
+  ws_server_.listen(port);
 
   ws_server_.start_accept();
 

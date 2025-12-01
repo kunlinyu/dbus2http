@@ -18,6 +18,18 @@
 #include "dbus2http/SignalSocket.h"
 #include "dbus2http/WebService.h"
 
+#ifndef VERSION_BUILD_NUMBER
+#define VERSION_BUILD_NUMBER "0.0.0.000"
+#endif
+
+#ifndef REVISION
+#define REVISION "unknown"
+#endif
+
+#ifndef TOOLCHAIN
+#define TOOLCHAIN "c++"
+#endif
+
 static std::atomic_bool g_running{true};
 
 static void handle_sigint(int) { g_running.store(false); }
@@ -46,12 +58,17 @@ int main(int argc, char* argv[]) {
   plog::init(plog::debug, &consoleAppender);
 
   // parse arguments
-  argparse::ArgumentParser program("dbus2http");
+  argparse::ArgumentParser program("dbus2http", VERSION_BUILD_NUMBER);
   program.add_description("A D-Bus to HTTP proxy server.");
   program.add_argument("-p", "--port")
       .help("Port to listen on")
       .nargs(1)
       .default_value(8080)
+      .scan<'i', int>();
+  program.add_argument("-wsp", "--websocket_port")
+      .help("Websocket port to listen on")
+      .nargs(1)
+      .default_value(9090)
       .scan<'i', int>();
   program.add_argument("--system")
       .help("Use system bus")
@@ -66,11 +83,25 @@ int main(int argc, char* argv[]) {
     PLOGE << "argument parsing error: " << e.what() << std::endl << program;
     return 1;
   }
+
+  PLOGI << "================================";
+  PLOGI << "dbus2http version: " << VERSION_BUILD_NUMBER;
+  PLOGI << "revision: " << REVISION;
+  PLOGI << "build time: " << std::string(__DATE__ " " __TIME__);
+  PLOGI << "toolchain: " << std::string(TOOLCHAIN);
+
+#ifdef NDEBUG
+  PLOGI << "build mode: release";
+#else
+  PLOGI << "build mode: debug";
+#endif
   auto service_prefix =
       program.get<std::vector<std::string>>("--service_prefix");
   for (const auto& prefix : service_prefix) PLOGI << "prefix: " << prefix;
-  PLOGI << "port: " << program.get<int>("--port");
-  PLOGI << "system bus: " << std::to_string(program.get<bool>("--system"));
+  PLOGI << "http port: " << program.get<int>("--port");
+  PLOGI << "websocket port: " << program.get<int>("--websocket_port");
+  PLOGI << "system bus: " << (program.get<bool>("--system") ? "true" : "false");
+  PLOGI << "================================";
 
   // launch example D-Bus service
   const auto conn = dbus2http::DbusUtils::createConnection(
@@ -84,7 +115,8 @@ int main(int argc, char* argv[]) {
   dbus2http.start(program.get<int>("--port"));
 
   dbus2http::SignalSocket signal_socket(dbus2http.getContext(),
-                                        program.get<bool>("--system"));
+                                        program.get<bool>("--system"),
+                                        program.get<int>("--websocket_port"));
   signal_socket.start();
 
   while (g_running.load()) {
