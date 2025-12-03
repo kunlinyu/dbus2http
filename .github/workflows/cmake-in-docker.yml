@@ -7,25 +7,41 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-in-container:
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: kunlinyu/dbus2http:latest
-      options: --user root
+    # container:
+    #   image: kunlinyu/dbus2http:latest
+    #   options: --user root
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        path: /home/ubuntu/workspace/dbus2http
+
+    - name: Docker pull
+      run: docker pull kunlinyu/dbus2http:latest
 
     - name: Debug
       run: pwd && ls -l
         
     - name: Conan Install
-      run: conan install . --build=missing --profile:build=/home/ubuntu/.conan2/profiles/default --profile:host=docker/conan/profile_host_x86_64.txt
+      run: docker run dus2http --rm \
+        -v ${{ github.workspace }}:workspace \
+        -w workspace \
+        /bin/bash -c "
+          conan install . --profile:host=docker/conan/profile_host_x86_64.txt
+        "
 
     - name: Configure CMake
-      run: cmake --preset x86_64-Release
+      run: docker run dus2http --rm \
+        -v ${{ github.workspace }}:workspace \
+        -w workspace \
+        /bin/bash -c "
+          cmake --preset x86_64-Release
+        "
 
     - name: Build
-      run: cmake --build --preset x86_64-Release
+      run: docker run dus2http --rm \
+        -v ${{ github.workspace }}:workspace \
+        -w workspace \
+        /bin/bash -c "
+          cmake --build --preset x86_64-Release
+        "
