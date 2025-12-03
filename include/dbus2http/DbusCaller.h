@@ -31,10 +31,8 @@ class DbusCaller {
 
   const InterfaceContext& context() const { return context_; }
 
-  [[nodiscard]] nlohmann::json RandRequest(const std::string& service_name,
-                                    const std::string& object_path,
-                                    const std::string& interface_name,
-                                    const std::string& method_name) const {
+  [[nodiscard]] nlohmann::json RandRequest(
+      const std::string& interface_name, const std::string& method_name) const {
     const auto& method_type = context_.get<Method>(interface_name, method_name);
     return Rand2Json::RandJson(method_type.in_args());
   }
@@ -52,8 +50,8 @@ class DbusCaller {
     const auto& method_type = context_.get<Method>(interface_name, method_name);
     PLOGD << "=====fill method call====";
     Json2Message::FillMessage(
-        method_call, context_.get<Method>(interface_name, method_name).in_args(),
-        request);
+        method_call,
+        context_.get<Method>(interface_name, method_name).in_args(), request);
     PLOGD << "=====call====";
     sdbus::MethodReply method_reply = proxy->callMethod(method_call);
     PLOGD << "=====extract method reply====";

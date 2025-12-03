@@ -14,13 +14,13 @@ class Dbus2Http {
   InterfaceContext context_;
   std::unique_ptr<WebService> service_;
   std::unique_ptr<DbusCaller> dbus_caller_;
-  bool system_;
+  bool system_bus_;
   std::set<std::string> service_prefixes_;
 
   std::thread service_thread_;
 
  public:
-  Dbus2Http(const std::vector<std::string>& service_prefixes, bool system);
+  Dbus2Http(const std::vector<std::string>& service_prefixes, bool system_bus);
 
   void start(int port);
 

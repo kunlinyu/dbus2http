@@ -7,13 +7,13 @@ namespace dbus2http {
 
 Dbus2Http::Dbus2Http(const std::vector<std::string>& service_prefixes,
                             bool system)
-    : system_(system) {
+    : system_bus_(system) {
   service_prefixes_.insert(service_prefixes.begin(), service_prefixes.end());
 }
 
 void Dbus2Http::start(int port) {
   DbusEnumerator dbusEnumerator(context_);
-  auto service_names = DbusEnumerator::list_services();
+  auto service_names = DbusEnumerator::list_services(system_bus_);
   for (const auto& service_name : service_names) {
     if (not match_prefix(service_name)) continue;
     PLOGI << "servcie name: " << service_name;
@@ -27,7 +27,7 @@ void Dbus2Http::start(int port) {
                        object_paths.end());
   }
 
-  dbus_caller_ = std::make_unique<DbusCaller>(context_, system_);
+  dbus_caller_ = std::make_unique<DbusCaller>(context_, system_bus_);
   service_ = std::make_unique<WebService>(*dbus_caller_);
   service_thread_ = std::thread([&] { service_->run(port); });
   // nlohmann::json j;

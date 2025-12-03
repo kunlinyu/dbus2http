@@ -21,7 +21,7 @@ class DbusEnumerator {
  public:
   DbusEnumerator(InterfaceContext& context) : context_(context) {}
 
-  static std::vector<std::string> list_services();
+  static std::vector<std::string> list_services(bool system_bus);
 
   static std::string introspect_service(const std::string& service_name,
                                         const std::string& path);

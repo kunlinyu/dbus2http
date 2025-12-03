@@ -208,8 +208,7 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     PLOGD << "interface_name: " << interface_name;
     PLOGD << "method: " << method;
     try {
-      nlohmann::json request = caller_.RandRequest(service_name, object_path,
-                                                    interface_name, method);
+      nlohmann::json request = caller_.RandRequest(interface_name, method);
       std::string filled_html =
           replaceAll(try_html, "$path$",
                      "/dbus/" + service_name + object_path + "/" +
@@ -247,7 +246,7 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     // Log: [timestamp] client "METHOD path" status body_size
     PLOGI << "[" << ts.str() << "] " << req.remote_addr << " \"" << req.method
           << " " << req.path << "\" " << res.status << " "
-          << res.body.substr(0, res.body.size() < 100 ? res.body.size() : 100);
+          << res.body.substr(0, res.body.size() < 200 ? res.body.size() : 200);
     ;
   });
 

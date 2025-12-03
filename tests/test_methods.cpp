@@ -68,7 +68,7 @@ TEST_CASE("call methods", "[i][i]") {
     first = false;
 
     conn = sdbus::createSessionBusConnection(
-        sdbus::ServiceName(dbus2http::kEchoServiceName));
+        sdbus::ServiceName(kEchoServiceName));
     dbus_thread = std::thread([&] {
       try {
         EchoService service(*conn);

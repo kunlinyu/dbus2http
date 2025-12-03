@@ -14,9 +14,9 @@
 
 namespace dbus2http {
 
-std::vector<std::string> DbusEnumerator::list_services() {
+std::vector<std::string> DbusEnumerator::list_services(bool system_bus) {
   try {
-    auto connection = sdbus::createSessionBusConnection();
+    auto connection = DbusUtils::createConnection(system_bus);
 
     auto proxy = sdbus::createProxy(*connection,
                                     sdbus::ServiceName("org.freedesktop.DBus"),
