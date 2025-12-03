@@ -21,6 +21,9 @@ jobs:
 
     - name: Debug
       run: pwd && ls -l && whoami && id
+
+    - name: Chang Owner
+      run: chown -R 1000:1000 ${{ github.workspace }}
         
     - name: Conan Install
       run: docker run --rm --user ubuntu -v ${{ github.workspace }}:/home/ubuntu/workspace -w /home/ubuntu/workspace kunlinyu/dbus2http /bin/bash -c " conan install . --profile:host=docker/conan/profile_host_x86_64.txt  "
