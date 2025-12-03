@@ -13,7 +13,12 @@ struct Method {
 
   Method() = default;
 
-  void add(const Argument& arg) { args.push_back(arg); }
+  void add(const Argument& arg) {
+    Argument argument = arg;
+    if (argument.name.empty())
+      argument.name = "arg" + std::to_string(args.size());
+    args.push_back(argument);
+  }
 
   [[nodiscard]] std::string in_signature() const {
     std::ostringstream result;
