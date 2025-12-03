@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Conan Install
-      run: conan install . -profile:build=/home/ubuntu/.conan2/profiles/default --profile:host=docker/conan/profile_host_x86_64.txt
+      run: conan install . --profile:build=/home/ubuntu/.conan2/profiles/default --profile:host=docker/conan/profile_host_x86_64.txt
 
     - name: Configure CMake
       run: cmake --preset x86_64-Release
