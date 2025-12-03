@@ -104,10 +104,10 @@ int main(int argc, char* argv[]) {
   PLOGI << "================================";
 
   // launch example D-Bus service
-  const auto conn = dbus2http::DbusUtils::createConnection(
-      dbus2http::kExampleServiceName, program.get<bool>("--system"));
-  std::thread dbus_thread([&conn] { RunExample(conn); });
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  // const auto conn = dbus2http::DbusUtils::createConnection(
+  //     dbus2http::kExampleServiceName, program.get<bool>("--system"));
+  // std::thread dbus_thread([&conn] { RunExample(conn); });
+  // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
   // launch dbus2http proxy
   PLOGI << "Starting dbus2http...";
@@ -132,8 +132,8 @@ int main(int argc, char* argv[]) {
   PLOGI << "dbus2http stopped.";
 
   PLOGI << "Stopping D-Bus example service...";
-  conn->leaveEventLoop();
-  if (dbus_thread.joinable()) dbus_thread.join();
+  // conn->leaveEventLoop();
+  // if (dbus_thread.joinable()) dbus_thread.join();
   PLOGI << "D-Bus example service stopped.";
 
   return 0;

@@ -41,12 +41,10 @@ std::vector<std::string> DbusEnumerator::list_services(bool system_bus) {
   }
 }
 
-std::string DbusEnumerator::introspect_service(const std::string& service_name, const std::string& path) {
+std::string DbusEnumerator::introspect_service(sdbus::IConnection& conn, const std::string& service_name, const std::string& path) {
   try {
-    std::unique_ptr<sdbus::IConnection> connection =
-        sdbus::createSessionBusConnection();
     std::unique_ptr<sdbus::IProxy> proxy = sdbus::createProxy(
-        *connection, sdbus::ServiceName(service_name), sdbus::ObjectPath(path));
+        conn, sdbus::ServiceName(service_name), sdbus::ObjectPath(path));
 
     std::string xml;
     proxy->callMethod("Introspect")

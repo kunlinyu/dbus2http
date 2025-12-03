@@ -4,10 +4,11 @@
 
 #pragma once
 
+#include <plog/Log.h>
+#include <sdbus-c++/IConnection.h>
+
 #include <string>
 #include <vector>
-
-#include <plog/Log.h>
 
 #include "entity/DbusSerialization.h"
 #include "entity/InterfaceContext.h"
@@ -23,13 +24,16 @@ class DbusEnumerator {
 
   static std::vector<std::string> list_services(bool system_bus);
 
-  static std::string introspect_service(const std::string& service_name,
+  static std::string introspect_service(sdbus::IConnection& conn,
+                                        const std::string& service_name,
                                         const std::string& path);
 
   std::vector<ObjectPath> parse_object_paths_recursively(
-      const std::string& service_name, const std::string& path) {
-    const std::string xml = introspect_service(service_name, path);
-    ObjectPath object = DbusSerialization::parse_single_object_path(xml, path, context_);
+      sdbus::IConnection& conn, const std::string& service_name,
+      const std::string& path) {
+    const std::string xml = introspect_service(conn, service_name, path);
+    ObjectPath object =
+        DbusSerialization::parse_single_object_path(xml, path, context_);
     std::vector<ObjectPath> result;
     result.emplace_back(object);
     context_.add(service_name, object);
@@ -37,7 +41,7 @@ class DbusEnumerator {
     for (const auto& child : object.children_paths) {
       std::string child_path = path + (path == "/" ? "" : "/") + child;
       std::vector<ObjectPath> child_ops =
-          parse_object_paths_recursively(service_name, child_path);
+          parse_object_paths_recursively(conn, service_name, child_path);
       result.insert(result.end(), child_ops.begin(), child_ops.end());
     }
     return result;

@@ -18,6 +18,7 @@ class Dbus2Http {
   std::set<std::string> service_prefixes_;
 
   std::thread service_thread_;
+  std::unique_ptr<sdbus::IConnection> conn_;
 
  public:
   Dbus2Http(const std::vector<std::string>& service_prefixes, bool system_bus);

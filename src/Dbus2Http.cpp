@@ -9,6 +9,7 @@ Dbus2Http::Dbus2Http(const std::vector<std::string>& service_prefixes,
                             bool system)
     : system_bus_(system) {
   service_prefixes_.insert(service_prefixes.begin(), service_prefixes.end());
+  conn_ = DbusUtils::createConnection(system_bus_);
 }
 
 void Dbus2Http::start(int port) {
@@ -19,7 +20,7 @@ void Dbus2Http::start(int port) {
     PLOGI << "servcie name: " << service_name;
     PLOGI << "object paths: ";
     std::vector<ObjectPath> object_paths =
-        dbusEnumerator.parse_object_paths_recursively(service_name, "/");
+        dbusEnumerator.parse_object_paths_recursively(*conn_.get(), service_name, "/");
     object_paths.erase(std::remove_if(object_paths.begin(), object_paths.end(),
                                       [](const ObjectPath& op) {
                                         return op.interfaces.empty();

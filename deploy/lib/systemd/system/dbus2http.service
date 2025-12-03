@@ -1,12 +1,12 @@
 #filename: dbus2http.service
 
 [Unit]
-Description=A proxy to exposes existing DBus services over HTTP/JSON
+Description=dbus2http proxy
 
 [Service]
-User=pivot
+User=dbus2http
 WorkingDirectory=/opt/cosmos/bin
-ExecStart=/opt/cosmos/bin/dbus2http
+ExecStart=/opt/cosmos/bin/dbus2http --system --port 10049 --service_prefix com
 Type=simple
 EnvironmentFile=/etc/environment
 Restart=always

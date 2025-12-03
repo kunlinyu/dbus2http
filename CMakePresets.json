@@ -41,7 +41,6 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_MODULE_PATH": "${sourceDir}/build/armv8/Release/generators",
         "CMAKE_PREFIX_PATH": "${sourceDir}/build/armv8/Release/generators",
-        "CMAKE_C_COMPILER": "/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc",
         "CMAKE_CXX_COMPILER": "/aarch64-linux-musl-cross/bin/aarch64-linux-musl-g++",
         "CMAKE_FIND_LIBRARY_SUFFIXES": ".a",
         "BUILD_SHARED_LIBS": "OFF",
