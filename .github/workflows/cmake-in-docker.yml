@@ -23,28 +23,4 @@ jobs:
       run: pwd && ls -l
         
     - name: Conan Install
-      run: docker run --rm \
-        -v ${{ github.workspace }}:/home/ubuntu/workspace \
-        -w workspace \
-        kunlinyu/dbus2http
-        /bin/bash -c "
-          conan install . --profile:host=docker/conan/profile_host_x86_64.txt
-        "
-
-    - name: Configure CMake
-      run: docker run --rm \
-        -v ${{ github.workspace }}:/home/ubuntu/workspace \
-        -w workspace \
-        kunlinyu/dbus2http
-        /bin/bash -c "
-          cmake --preset x86_64-Release
-        "
-
-    - name: Build
-      run: docker run --rm \
-        -v ${{ github.workspace }}:/home/ubuntu/workspace \
-        -w workspace \
-        kunlinyu/dbus2http
-        /bin/bash -c "
-          cmake --build --preset x86_64-Release
-        "
+      run: docker run --rm -v ${{ github.workspace }}:/home/ubuntu/workspace -w /home/ubuntu/workspace kunlinyu/dbus2http /bin/bash -c " conan install . --profile:host=docker/conan/profile_host_x86_64.txt "
