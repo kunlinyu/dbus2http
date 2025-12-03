@@ -5,37 +5,19 @@ ENV DEBIAN_FRONTEND=noninteractive
 COPY docker/source.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources
 RUN apt-get update
 
-# install basic tools
-RUN apt-get install -y sudo
-RUN apt-get install -y curl wget iputils-ping
-RUN apt-get install -y build-essential pkg-config
-RUN apt-get install -y file gdb
-RUN apt-get install -y git cmake repo
-RUN apt-get install -y vim tree silversearcher-ag
-
-# install toolchain
-RUN apt-get install -y gcc-aarch64-linux-gnu
-RUN apt-get install -y g++-aarch64-linux-gnu
-
-# for coverage test report
-RUN apt-get install -y lcov
+# install build tools
+RUN apt-get install -y sudo curl wget iputils-ping pkg-config
+RUN apt-get install -y g++ gdb cmake make git lcov
 
 # install python
 RUN apt-get install -y python3 python3-pip
 RUN rm /usr/lib/python3.12/EXTERNALLY-MANAGED # install globally
 
-## install conan
-RUN pip install conan
+# install conan and test tools
+RUN pip install conan gcovr pytest pytest-html requests
 
-## for coverage test report
-RUN pip install gcovr
-
-## for interface test
-RUN pip install pytest pytest-html requests
-
-# copy musl toolchain
-RUN wget https://musl.cc/aarch64-linux-musl-cross.tgz
-RUN tar xzvf /aarch64-linux-musl-cross.tgz
+# download musl toolchain
+RUN wget https://musl.cc/aarch64-linux-musl-cross.tgz && tar xzvf /aarch64-linux-musl-cross.tgz && rm /aarch64-linux-musl-cross.tgz
 
 USER ubuntu
 WORKDIR /home/ubuntu/
