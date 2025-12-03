@@ -46,6 +46,7 @@ target_link_libraries(example plog::plog SDBusCpp::sdbus-c++ basu)
 add_executable(caller src/caller.cpp)
 target_link_libraries(caller SDBusCpp::sdbus-c++ basu)
 
+# handle revision and version
 set(VERSION_FULL ${PROJECT_VERSION}.${BUILD_NUMBER})
 add_definitions(-DVERSION_BUILD_NUMBER="${VERSION_FULL}")
 include(${CMAKE_SOURCE_DIR}/cmake/git_head.cmake)
@@ -54,3 +55,14 @@ message(STATUS "REVISION: ${REVISION}")
 add_definitions(-DREVISION="${REVISION}")
 message(STATUS "TOOLCHAIN: ${TOOLCHAIN}")
 add_definitions(-DTOOLCHAIN="${TOOLCHAIN}")
+
+# pack debian package
+install(TARGETS dbus2http
+        RUNTIME DESTINATION "opt/cosmos/bin"
+        COMPONENT runtime)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/deploy/
+        DESTINATION "opt/cosmos"
+        USE_SOURCE_PERMISSIONS
+        COMPONENT runtime)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Pack.cmake)
+pack_deb("yukunlin@syriusrobotics.com" "Syrius Robotics" "runtime")

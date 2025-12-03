@@ -1,0 +1,16 @@
+#filename: dbus2http.service
+
+[Unit]
+Description=A proxy to exposes existing DBus services over HTTP/JSON
+
+[Service]
+User=pivot
+WorkingDirectory=/opt/cosmos/bin
+ExecStart=/opt/cosmos/bin/dbus2http
+Type=simple
+EnvironmentFile=/etc/environment
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
