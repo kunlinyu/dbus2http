@@ -2,3 +2,4 @@
 .idea
 build/
 conan_provider.cmake
+_CPack_Packages/
