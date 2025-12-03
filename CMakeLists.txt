@@ -40,6 +40,12 @@ target_link_libraries(dbus2http libdbus2http argparse::argparse)
 add_executable(test-dbus2http tests/test_methods.cpp)
 target_link_libraries(test-dbus2http libdbus2http Catch2::Catch2WithMain)
 
+add_executable(example src/example.cpp src/ExampleService.cpp)
+target_link_libraries(example plog::plog SDBusCpp::sdbus-c++ basu)
+
+add_executable(caller src/caller.cpp)
+target_link_libraries(caller SDBusCpp::sdbus-c++ basu)
+
 set(VERSION_FULL ${PROJECT_VERSION}.${BUILD_NUMBER})
 add_definitions(-DVERSION_BUILD_NUMBER="${VERSION_FULL}")
 include(${CMAKE_SOURCE_DIR}/cmake/git_head.cmake)
