@@ -42,7 +42,7 @@ class DbusCaller {
                                     const std::string& interface_name,
                                     const std::string& method_name,
                                     const nlohmann::json& request) const {
-    auto proxy = sdbus::createProxy(sdbus::ServiceName(service_name),
+    auto proxy = sdbus::createProxy(*conn_, sdbus::ServiceName(service_name),
                                     sdbus::ObjectPath(object_path));
     auto method_call = proxy->createMethodCall(
         sdbus::InterfaceName(interface_name), sdbus::MethodName(method_name));

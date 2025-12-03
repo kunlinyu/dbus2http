@@ -5,6 +5,7 @@
 #include <dbus2http/entity/DbusSerialization.h>
 
 #include <utility>
+#include <ranges>
 
 namespace dbus2http {
 
