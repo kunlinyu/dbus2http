@@ -24,7 +24,7 @@ jobs:
         
     - name: Conan Install
       run: docker run --rm \
-        -v ${{ github.workspace }}:workspace \
+        -v ${{ github.workspace }}:/home/ubuntu/workspace \
         -w workspace \
         kunlinyu/dbus2http
         /bin/bash -c "
@@ -33,7 +33,7 @@ jobs:
 
     - name: Configure CMake
       run: docker run --rm \
-        -v ${{ github.workspace }}:workspace \
+        -v ${{ github.workspace }}:/home/ubuntu/workspace \
         -w workspace \
         kunlinyu/dbus2http
         /bin/bash -c "
@@ -42,7 +42,7 @@ jobs:
 
     - name: Build
       run: docker run --rm \
-        -v ${{ github.workspace }}:workspace \
+        -v ${{ github.workspace }}:/home/ubuntu/workspace \
         -w workspace \
         kunlinyu/dbus2http
         /bin/bash -c "
