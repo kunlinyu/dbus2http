@@ -1,0 +1,25 @@
+name: CMake on a single platform
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-in-container:
+    runs-on: ubuntu-latest
+    container:
+      image: kunlinyu/dbus2http:latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Conan Install
+      run: conan install . --profile:host=docker/conan/profile_host_x86_64.txt
+
+    - name: Configure CMake
+      run: cmake --preset x86_64-Release
+
+    - name: Build
+      run: cmake --build --preset x86_64-Release
