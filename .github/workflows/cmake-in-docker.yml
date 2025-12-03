@@ -2,7 +2,7 @@ name: CMake on a single platform
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "workflow" ]
   pull_request:
     branches: [ "main" ]
 
@@ -15,7 +15,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        path: /home/ubuntu/workspace/dbus2http
 
+    - name: Debug
+      run: pwd && ls -l
+        
     - name: Conan Install
       run: conan install . --build=missing --profile:build=/home/ubuntu/.conan2/profiles/default --profile:host=docker/conan/profile_host_x86_64.txt
 
