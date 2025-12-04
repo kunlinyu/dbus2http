@@ -15,11 +15,15 @@ namespace dbus2http {
 class WebService {
   httplib::Server server_;
   DbusCaller& caller_;
+  int ws_port_;
 
  public:
   explicit WebService(DbusCaller& caller);
 
-  bool run(int port) { return server_.listen("0.0.0.0", port); }
+  bool run(int port, int ws_port) {
+    ws_port_ = ws_port;
+    return server_.listen("0.0.0.0", port);
+  }
 
   void stop() { server_.stop(); }
 

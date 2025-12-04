@@ -188,6 +188,9 @@ Flags DbusSerialization::parse_flags(const tinyxml2::XMLElement* parent_node) {
   }
   return flags;
 }
+
+std::string Dbus2Html::ws_port;
+
 std::string Dbus2Html::to_html(
     const std::map<std::string, std::map<std::string, ObjectPath>>&
         object_paths) {
@@ -206,8 +209,7 @@ std::string Dbus2Html::to_html(const ObjectPath& op,
   oss << "<details>";
   oss << "<summary>" << op.path << "</summary>";
   for (const auto& interface : op.interfaces) {
-    oss << "<p>" << "<a href=\"" << "/dbus/interface/html/"
-        << interface;
+    oss << "<p>" << "<a href=\"" << "/dbus/interface/html/" << interface;
     oss << "?object_path=" << op.path;
     oss << "&interface_name=" << interface;
     if (not service_name.empty()) oss << "&service_name=" << service_name;
@@ -272,6 +274,7 @@ std::string Dbus2Html::to_html(const Signal& signal) {
   oss << "<summary>";
   oss << "<a href=\"" << "/dbus/matchrule";
   oss << "?member=" << signal.name;
+  if (not ws_port.empty()) oss << "&ws_port=" << ws_port;
   oss << "\">";
   oss << signal.name;
   oss << "</a>";
@@ -279,7 +282,6 @@ std::string Dbus2Html::to_html(const Signal& signal) {
   oss << "</summary>";
   for (const auto& arg : signal.args) {
     oss << "<p>" << arg.name << ": " << arg.name << "</p>";
-
   }
   oss << "</details>";
   return oss.str();

@@ -83,7 +83,7 @@ TEST_CASE("call methods", "[i][i]") {
     std::vector<std::string> service_prefixes = {"com.test"};
     dbus2http = std::make_unique<Dbus2Http>(service_prefixes, false);
     try {
-      dbus2http->start(8080);
+      dbus2http->start(10059, 10058);
     } catch (const std::exception& e) {
       PLOGE << "start dbus2http failed: " << e.what();
     }

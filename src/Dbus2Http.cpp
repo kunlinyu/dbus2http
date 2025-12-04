@@ -12,7 +12,7 @@ Dbus2Http::Dbus2Http(const std::vector<std::string>& service_prefixes,
   conn_ = DbusUtils::createConnection(system_bus_);
 }
 
-void Dbus2Http::start(int port) {
+void Dbus2Http::start(int port, int ws_port) {
   DbusEnumerator dbusEnumerator(context_);
   auto service_names = DbusEnumerator::list_services(system_bus_);
   for (const auto& service_name : service_names) {
@@ -30,7 +30,7 @@ void Dbus2Http::start(int port) {
 
   dbus_caller_ = std::make_unique<DbusCaller>(context_, system_bus_);
   service_ = std::make_unique<WebService>(*dbus_caller_);
-  service_thread_ = std::thread([&] { service_->run(port); });
+  service_thread_ = std::thread([&] { service_->run(port, ws_port); });
   // nlohmann::json j;
   // j["object_paths"] = context_.object_paths;
   // j["interfaces"] = context_.interfaces;

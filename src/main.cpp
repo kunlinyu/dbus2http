@@ -63,12 +63,12 @@ int main(int argc, char* argv[]) {
   program.add_argument("-p", "--port")
       .help("Port to listen on")
       .nargs(1)
-      .default_value(8080)
+      .default_value(10059)
       .scan<'i', int>();
   program.add_argument("-wsp", "--websocket_port")
       .help("Websocket port to listen on")
       .nargs(1)
-      .default_value(9090)
+      .default_value(10058)
       .scan<'i', int>();
   program.add_argument("--system")
       .help("Use system bus")
@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
   // launch dbus2http proxy
   PLOGI << "Starting dbus2http...";
   dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));
-  dbus2http.start(program.get<int>("--port"));
+  dbus2http.start(program.get<int>("--port"), program.get<int>("--websocket_port"));
 
   dbus2http::SignalSocket signal_socket(dbus2http.getContext(),
                                         program.get<bool>("--system"),

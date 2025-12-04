@@ -119,6 +119,7 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
   server_.Get(R"(/dbus/interface/html/(.*))", [&, header, footer](
                                                   const auto& req, auto& res) {
     std::string suffix = req.matches[1];
+    Dbus2Html::set_ws_port(std::to_string(ws_port_));
     if (suffix.find('/') == std::string::npos) {
       const std::string& interface_name = suffix;
       if (caller_.context().interfaces.contains(interface_name)) {

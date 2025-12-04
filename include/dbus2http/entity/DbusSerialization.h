@@ -86,11 +86,15 @@ class DbusSerialization {
 };
 
 class Dbus2Html {
+  static std::string ws_port;
+
  public:
+  static void set_ws_port(const std::string& port) { ws_port = port; }
   static std::string to_html(
       const std::map<std::string, std::map<std::string, ObjectPath>>&
           object_paths);
-  static std::string to_html(const ObjectPath& op, const std::string& service_name = "");
+  static std::string to_html(const ObjectPath& op,
+                             const std::string& service_name = "");
 
   static std::string to_html(const Interface& interface);
 
