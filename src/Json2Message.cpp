@@ -23,13 +23,13 @@ void Json2Message::FillMessage(sdbus::Message& message, const std::string& sig,
   if (complete_sigs.size() > 1) {
     if (not json.is_array()) {
       std::string err_msg =
-          "Expected array type but we get :" + std::string(json.type_name());
+          "Expect array but we get :" + std::string(json.type_name());
       PLOGE << err_msg;
       throw std::invalid_argument(err_msg);
     }
     if (json.size() != complete_sigs.size())
       throw std::invalid_argument(
-          "Expected array size " + std::to_string(complete_sigs.size()) +
+          "Expect array size " + std::to_string(complete_sigs.size()) +
           " but we get :" + std::to_string(json.size()));
     for (size_t i = 0; i < complete_sigs.size(); ++i)
       FillMessage(message, complete_sigs[i], json[i]);
@@ -41,7 +41,7 @@ void Json2Message::FillMessage(sdbus::Message& message, const std::string& sig,
           PLOGD << "append bool " << json.dump();
           message << json.get<bool>();
         } else
-          throw std::invalid_argument("Expected bool type but we get :" +
+          throw std::invalid_argument("Expect bool but we get :" +
                                       std::string(json.type_name()));
         break;
       case 'y':  // byte
@@ -70,7 +70,7 @@ void Json2Message::FillMessage(sdbus::Message& message, const std::string& sig,
           PLOGD << "append double " << json.dump();
           message << json.get<double>();
         } else
-          throw std::invalid_argument("Expected float type but we get :" +
+          throw std::invalid_argument("Expect float but we get :" +
                                       std::string(json.type_name()));
         break;
       case 's':  // string
@@ -78,7 +78,7 @@ void Json2Message::FillMessage(sdbus::Message& message, const std::string& sig,
           PLOGD << "append string " << json.dump();
           message << json.get<std::string>();
         } else
-          throw std::invalid_argument("Expected float type but we get :" +
+          throw std::invalid_argument("Expect string but we get :" +
                                       std::string(json.type_name()));
         break;
       case 'v':  // variant
@@ -113,7 +113,7 @@ void Json2Message::FillMessage(sdbus::Message& message, const std::string& sig,
           PLOGD << "close container: " << array_sig;
           message.closeContainer();
         } else {
-          std::string err_msg = "Expected array type but we get :" +
+          std::string err_msg = "Expect array but we get :" +
                                 std::string(json.type_name());
           PLOGE << err_msg;
           throw std::invalid_argument(err_msg);
@@ -136,7 +136,7 @@ void Json2Message::FillMessage(sdbus::Message& message, const std::string& sig,
 void Json2Message::FillVariant(sdbus::Message& message,
                                const nlohmann::json& json) {
   if (not json.is_object())
-    throw std::invalid_argument("Expected object type for variant");
+    throw std::invalid_argument("Expect object for variant");
   if (not json.contains("variant") or not json.contains("value"))
     throw std::invalid_argument("Missing signature or value for variant");
   std::string sig = json["variant"].get<std::string>();
