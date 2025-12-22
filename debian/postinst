@@ -14,7 +14,7 @@ chown ${USER_NAME}:${USER_NAME} /opt/cosmos/lib/systemd/system/${SRV_NAME}.servi
 chown ${USER_NAME}:${USER_NAME} /opt/cosmos/etc/dbus-1/system.d/com.syriusrobotics.${SRV_NAME}.conf
 chown ${USER_NAME}:${USER_NAME} /opt/cosmos/bin/${SRV_NAME}
 
-chmod 644 /opt/cosmos/etc/dbus-1/system.d/com.syriusrobotics.${SRV_NAME}.conf
+chmod 644 /opt/cosmos/lib/systemd/system/${SRV_NAME}.service
 chmod 644 /opt/cosmos/etc/dbus-1/system.d/com.syriusrobotics.${SRV_NAME}.conf
 chmod 750 /opt/cosmos/bin/${SRV_NAME}
 
