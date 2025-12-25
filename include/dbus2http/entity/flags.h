@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace dbus2http {
 
 enum EmitsChangedSignal {

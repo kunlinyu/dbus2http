@@ -96,12 +96,8 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
   </body>
 </html>
 )";
-  server_.Post("/echo", [](const auto& req, auto& res) {
-    res.set_content(req.body, "text/plain");
-  });
-  server_.Get("/hello", [](const auto& req, auto& res) {
-    res.set_content("hello world", "text/plain");
-  });
+
+  // List DBus services
   server_.Get("/dbus", [this](const auto& req, auto& res) {
     nlohmann::json j;
     j["services"] = nlohmann::json::array();

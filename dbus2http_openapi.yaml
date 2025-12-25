@@ -1,0 +1,362 @@
+openapi: 3.0.3
+info:
+  title: dbus2http API
+  version: "0.1.0"
+  description: >
+    Demo OpenAPI description for dbus2http. This file documents a few
+    representative endpoints: listing DBus services, listing object paths
+    for a given service, and a generic DBus method call endpoint.
+
+paths:
+  /dbus/service:
+    get:
+      summary: List DBus services
+      description: Returns the names of services visible on the system bus.
+      responses:
+        "200":
+          description: Array of service names
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example:
+                  - org.freedesktop.NetworkManager
+                  - org.freedesktop.UPower
+  /dbus/service/{service}:
+    get:
+      summary: List object paths for a service
+      parameters:
+        - name: service
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The DBus service name (e.g. org.freedesktop.NetworkManager)
+      responses:
+        "200":
+          description: Object paths exposed by the service
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Mapping from object path (string) to ObjectPath object.
+                additionalProperties:
+                  $ref: '#/components/schemas/ObjectPath'
+                example:
+                    /org/freedesktop/NetworkManager:
+                        interfaces:
+                        - org.freedesktop.NetworkManager
+                        - org.freedesktop.DBus.Introspectable
+                    /org/freedesktop/NetworkManager/Devices/0:
+                        interfaces:
+                        - org.freedesktop.NetworkManager.Device
+                        - org.freedesktop.DBus.Introspectable
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /dbus/interface/{interface}:
+    get:
+      summary: Get introspected interface
+      description: >
+        Return the introspected representation of a single interface as JSON.
+        The {interface} path parameter is the interface name (e.g. org.freedesktop.NetworkManager).
+        The response mirrors the server-side Interface struct:
+        - name: the interface name
+        - methods: mapping from method name to Method object
+        - signals: mapping from signal name to Signal object
+        - properties: mapping from property name to Property object
+        - flags: optional metadata flags
+      parameters:
+        - name: interface
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Interface name (no '/' expected)
+      responses:
+        "200":
+          description: Interface JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interface'
+        "404":
+          $ref: '#/components/responses/NotFound'
+  /dbus/call/{service}/{object_path}/{interface}/{method}:
+    post:
+      summary: Generic DBus method call
+      description: >
+        Call a DBus method. Use the query parameters to specify the target
+        service/object/interface/method. The body contains a JSON object
+        mapping argument names to values. The server converts JSON to DBus
+        types based on introspected signatures.
+      parameters:
+        - name: service
+          in: query
+          required: true
+          schema:
+            type: string
+          description: DBus service name
+        - name: object_path
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Object path (leading /). May contain additional '/'.
+        - name: interface
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Interface name
+        - name: method
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Method name
+      requestBody:
+        description: JSON object representing method arguments
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MethodCall'
+      responses:
+        "200":
+          description: Method return value serialized as JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MethodReply'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    ObjectPath:
+      type: object
+      properties:
+        interfaces:
+          type: array
+          items:
+            type: string
+      description: Single object path representation. List of interfaces implemented at this path.
+      example:
+        interfaces: ["org.freedesktop.NetworkManager"]
+    Interface:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        methods:
+          type: object
+          description: Mapping from method name to Method object.
+          additionalProperties:
+            $ref: '#/components/schemas/Method'
+        signals:
+          type: object
+          description: Mapping from signal name to Signal object.
+          additionalProperties:
+            $ref: '#/components/schemas/Signal'
+        properties:
+          type: object
+          description: Mapping from property name to Property object.
+          additionalProperties:
+            $ref: '#/components/schemas/Property'
+        flags:
+          $ref: '#/components/schemas/Flags'
+      example:
+        name: "org.freedesktop.NetworkManager"
+        methods:
+          GetDevices:
+            name: "GetDevices"
+            args: []
+            flags:
+              deprecated: false
+        signals:
+          DeviceAdded:
+            name: "DeviceAdded"
+            args:
+              - { name: "device_path", type: "o", direction: "out" }
+            flags:
+              deprecated: false
+        properties:
+          WirelessEnabled:
+            name: "WirelessEnabled"
+            type: "b"
+            access: "readwrite"
+            flags:
+              deprecated: false
+              emits_changed_signal: "TRUE"
+        flags:
+          supports_introspection: true
+
+    Method:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        args:
+          type: array
+          description: Argument list; each Argument has name/type/direction.
+          items:
+            $ref: '#/components/schemas/Argument'
+        flags:
+          $ref: '#/components/schemas/Flags'
+      example:
+        name: "GetDevices"
+        args: []
+        flags:
+          method_no_reply: false
+          deprecated: false
+
+    Signal:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        args:
+          type: array
+          items:
+            $ref: '#/components/schemas/Argument'
+        flags:
+          $ref: '#/components/schemas/Flags'
+      example:
+        name: "DeviceAdded"
+        args:
+          - name: "device_path"
+            type: "o"
+            direction: "out"
+        flags:
+          deprecated: false
+
+    Property:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          description: DBus type signature (e.g. "s", "i", "a{sv}")
+        access:
+          type: string
+          description: access mode ("read", "write", "readwrite")
+        flags:
+          $ref: '#/components/schemas/Flags'
+      example:
+        name: "WirelessEnabled"
+        type: "b"
+        access: "readwrite"
+        flags:
+          deprecated: false
+          emits_changed_signal: "TRUE"
+
+    Argument:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          description: DBus type signature for the argument
+        direction:
+          type: string
+          enum: [in, out]
+      example:
+        name: "device_paths"
+        type: "as"
+        direction: "out"
+
+    Flags:
+      type: object
+      description: Flags structure matching include/dbus2http/entity/flags.h
+      properties:
+        deprecated:
+          type: boolean
+          description: whether the member is deprecated
+        method_no_reply:
+          type: boolean
+          description: whether a method uses no-reply semantics
+        privileged:
+          type: boolean
+          description: whether privileged access is required
+        emits_changed_signal:
+          type: string
+          enum:
+            - "TRUE"
+            - "INVALIDATES"
+            - "CONST"
+            - "FALSE"
+          description: >
+            How property change notifications are emitted (matches EmitsChangedSignal enum).
+        c_symbol:
+          type: string
+          description: optional C symbol name associated with this member
+      example:
+        deprecated: false
+        method_no_reply: false
+        privileged: false
+        emits_changed_signal: "TRUE"
+        c_symbol: "NM_GetDevices"
+
+    MethodCall:
+      type: object
+      description: 'Free-form object: argument name -> value. Adapted to the method signature by the server.'
+      additionalProperties: true
+      example:
+        arg0: "value"
+        timeout: 30
+
+    MethodReply:
+      type: object
+      description: 'Free-form response object. If method returns a single basic value it may be in "result".'
+      additionalProperties: true
+      example:
+        result: "ok"
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+      example:
+        message: "error details"
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "not found"
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
