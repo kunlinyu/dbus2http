@@ -7,6 +7,8 @@
 #include <utility>
 #include <ranges>
 
+// #embed "../dbus2http_openapi.yaml" as dbus2http_openapi_yaml
+
 namespace dbus2http {
 
 #include "match_rule.inc"
@@ -97,8 +99,12 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
 </html>
 )";
 
+  bool ret = server_.set_mount_point("/", "/opt/cosmos/var/www/dbus2http");
+  if (not ret)
+    PLOGW << "set mount point failed";
+
   // List DBus services
-  server_.Get("/dbus", [this](const auto& req, auto& res) {
+  server_.Get("/dbus/service", [this](const auto& req, auto& res) {
     nlohmann::json j;
     j["services"] = nlohmann::json::array();
     for (const auto& service_name :
@@ -156,7 +162,7 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       }
     }
   });
-  server_.Post(R"(/dbus/(.*))", [this](const auto& req, auto& res) {
+  server_.Post(R"(/dbus/call/(.*))", [this](const auto& req, auto& res) {
     PLOGD << "in post";
     std::string service_name, object_path, interface_name, method;
     if (!parse_dbus_request_path(req.matches[1], service_name, object_path,
@@ -209,7 +215,7 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       nlohmann::json request = caller_.RandRequest(interface_name, method);
       std::string filled_html =
           replaceAll(try_html, "$path$",
-                     "/dbus/" + service_name + object_path + "/" +
+                     "/dbus/call/" + service_name + object_path + "/" +
                          interface_name + "." + method);
       filled_html = replaceAll(filled_html, "$request$", request.dump(2));
       filled_html = replaceAll(filled_html, "$service_name$", service_name);

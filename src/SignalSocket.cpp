@@ -71,7 +71,6 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system, int por
   });
   ws_server_.set_message_handler(
       [&](auto conn_hdl, auto msg) { on_message(&ws_server_, conn_hdl, msg); });
-
   ws_server_.set_close_handler(
       [&](auto conn_hdl) { conn2slot_.erase(conn_hdl); });
   ws_server_.set_http_handler([](auto conn_hdl) {});
@@ -81,9 +80,13 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system, int por
   ws_server_.set_pong_handler([](auto conn_hdl, auto msg) {});
   ws_server_.set_pong_timeout_handler([](auto conn_hdl, auto msg) {});
 
-  ws_server_.listen(port);
-
-  ws_server_.start_accept();
+  try {
+    ws_server_.listen(port);
+    ws_server_.start_accept();
+  } catch (const std::exception& e) {
+    PLOGE << "WebSocket server start failed: " << e.what();
+    return;
+  }
 
 #ifdef NDEBUG
   ws_server_.clear_access_channels(alevel::all);
