@@ -7,7 +7,7 @@ SRV_NAME="dbus2http"
 
 if ! id -u "${USER_NAME}" >/dev/null 2>&1; then
     echo "Creating user ${USER_NAME} for ${SRV_NAME}..." >&2
-    useradd -r -s "${USER_NAME}" -M -U -c "User of service ${SRV_NAME}" "${USER_NAME}"
+    useradd -r -M -U -c "User of service ${SRV_NAME}" "${USER_NAME}"
 fi
 
 chown ${USER_NAME}:${USER_NAME} /opt/cosmos/lib/systemd/system/${SRV_NAME}.service
