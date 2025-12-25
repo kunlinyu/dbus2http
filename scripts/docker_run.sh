@@ -1,0 +1,1 @@
+docker run --net=host -v $(pwd):/home/ubuntu/workspace -it  kunlinyu/dbus2http /bin/bash
