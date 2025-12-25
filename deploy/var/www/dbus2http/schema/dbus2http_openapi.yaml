@@ -3,13 +3,20 @@ info:
   title: dbus2http API
   version: "0.1.0"
   description: >
-    Demo OpenAPI description for dbus2http. This file documents a few
+    OpenAPI description for dbus2http. This file documents a few
     representative endpoints: listing DBus services, listing object paths
     for a given service, and a generic DBus method call endpoint.
+tags:
+  - name: http
+    description: HTTP REST API endpoints over 10059
+  - name: websocket
+    description: WebSocket endpoints over 10058
 
 paths:
   /dbus/service:
     get:
+      tags:
+        - http
       summary: List DBus services
       description: Returns the names of services visible on the system bus.
       responses:
@@ -26,6 +33,8 @@ paths:
                   - org.freedesktop.UPower
   /dbus/service/{service}:
     get:
+      tags:
+        - http
       summary: List object paths for a service
       parameters:
         - name: service
@@ -58,6 +67,8 @@ paths:
 
   /dbus/interface/{interface}:
     get:
+      tags:
+        - http
       summary: Get introspected interface
       description: >
         Return the introspected representation of a single interface as JSON.
@@ -86,6 +97,8 @@ paths:
           $ref: '#/components/responses/NotFound'
   /dbus/call/{service}/{object_path}/{interface}/{method}:
     post:
+      tags:
+        - http
       summary: Generic DBus method call
       description: >
         Call a DBus method. Use the query parameters to specify the target
@@ -135,6 +148,40 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "500":
           $ref: '#/components/responses/InternalError'
+
+  /dbus/signals:
+    get:
+      tags:
+        - websocket
+      summary: WebSocket DBus signal stream
+      description: >
+        WebSocket endpoint that streams DBus signals converted to JSON.
+        Connect to the WebSocket server at ws://localhost:10058 (or use the servers entry).
+        Provide a query string parameter "match" with a DBus match rule
+        (exactly as used by sdbus-c++ addMatch). Example:
+          ws://localhost:10058/ws/signals?match=type='signal',interface='org.freedesktop.NetworkManager'
+        The server will convert matching DBus signals to JSON messages according to the SignalMessage schema.
+      parameters:
+        - name: match
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >
+            DBus match rule (URL-encoded). Example: type='signal',interface='org.freedesktop.NetworkManager'
+      responses:
+        "101":
+          description: Switching Protocols (establish websocket). Once upgraded, messages follow the SignalMessage schema.
+      x-websocket:
+        connectUrl: ws://localhost:10058/ws/signals?match=<url-encoded match>
+        query:
+          - name: match
+            description: DBus match rule (URL-encoded)
+        messageSchema:
+          $ref: '#/components/schemas/SignalMessage'
+        notes: >
+          The websocket connection accepts a single "match" parameter and will stream JSON messages for signals matching the rule.
+          Each JSON message contains a header (metadata) and args (array of arguments) — see SignalMessage schema.
 
 components:
   schemas:
@@ -340,6 +387,51 @@ components:
         - message
       example:
         message: "error details"
+    SignalMessage:
+      type: object
+      required:
+        - data
+        - sender
+        - path
+        - interface
+        - member
+        - type
+      properties:
+        data:
+          type: object
+          description: >
+            Converted signal payload as a JSON object. Keys are argument names
+            when available, otherwise numeric indexes; values are the argument
+            values converted to JSON according to their DBus signatures.
+          additionalProperties: true
+        destination:
+          type: string
+          description: Optional destination bus name if present on the message
+        interface:
+          type: string
+          description: Interface name of the signal
+        member:
+          type: string
+          description: Signal member name
+        path:
+          type: string
+          description: Object path emitting the signal
+        sender:
+          type: string
+          description: Unique name of the message sender (bus name)
+        type:
+          type: string
+          description: Message type (e.g. "signal")
+      example:
+        data:
+          device_path: "/org/freedesktop/NetworkManager/Devices/0"
+        destination: ""
+        interface: "org.freedesktop.NetworkManager"
+        member: "DeviceAdded"
+        path: "/org/freedesktop/NetworkManager"
+        sender: ":1.42"
+        type: "signal"
+
   responses:
     NotFound:
       description: Resource not found

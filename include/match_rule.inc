@@ -171,7 +171,7 @@ std::string match_rule_html = R"DELIMETER====(
         const hostName = window.location.hostname;
         const searchParams = new URLSearchParams(window.location.search);
         const wsPort = searchParams.get('ws_port') || '10058';
-        const wsUrl = `ws://${hostName}:${wsPort}/ws?match=${matchRule}`; // Replace server_address with actual host
+        const wsUrl = `ws://${hostName}:${wsPort}/dbus/signals?match=${matchRule}`; // Replace server_address with actual host
         ws = new WebSocket(wsUrl);
 
         // WebSocket event handlers
