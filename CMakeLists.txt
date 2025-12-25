@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(dbus2http
-        VERSION 0.1.0
+        VERSION 0.2.0
         DESCRIPTION "A proxy to exposes existing DBus services over HTTP/JSON"
         HOMEPAGE_URL "https://github.com/kunlinyu/dbus2http"
         LANGUAGES CXX
