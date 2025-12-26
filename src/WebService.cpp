@@ -4,8 +4,8 @@
 #include <dbus2http/WebService.h>
 #include <dbus2http/entity/DbusSerialization.h>
 
-#include <utility>
 #include <ranges>
+#include <utility>
 
 // #embed "../dbus2http_openapi.yaml" as dbus2http_openapi_yaml
 
@@ -18,7 +18,6 @@ bool WebService::parse_dbus_request_path(const std::string& path,
                                          std::string& object_path,
                                          std::string& interface_name,
                                          std::string& method) {
-
   std::string rem = path;
   const auto first_slash = rem.find('/');
   if (first_slash == std::string::npos) {
@@ -100,22 +99,20 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
 )";
 
   bool ret = server_.set_mount_point("/", "/opt/cosmos/var/www/dbus2http");
-  if (not ret)
-    PLOGW << "set mount point failed";
+  if (not ret) PLOGW << "set mount point failed";
 
   // List DBus services
   server_.Get("/dbus/service", [this](const auto& req, auto& res) {
     nlohmann::json j;
     j["services"] = nlohmann::json::array();
-    for (const auto& service_name :
-         caller_.context().object_paths | std::views::keys) {
+    for (const auto& service_name : caller_.context().get_service_names()) {
       j["services"].push_back(service_name);
     }
     res.set_content(j.dump(), "application/json");
   });
   server_.Get("/dbus/html", [&, header, footer](const auto& req, auto& res) {
     res.set_content(
-        header + Dbus2Html::to_html(caller_.context().object_paths) + footer,
+        header + Dbus2Html::to_html(caller_.context()) + footer,
         "text/html");
   });
   server_.Get(R"(/dbus/interface/html/(.*))", [&, header, footer](
@@ -124,9 +121,9 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     Dbus2Html::set_ws_port(std::to_string(ws_port_));
     if (suffix.find('/') == std::string::npos) {
       const std::string& interface_name = suffix;
-      if (caller_.context().interfaces.contains(interface_name)) {
+      if (caller_.context().contains_interface(interface_name)) {
         const Interface& interface =
-            caller_.context().interfaces.at(interface_name);
+            caller_.context().get_interfaces(interface_name);
         res.set_content(header + Dbus2Html::to_html(interface) + footer,
                         "text/html");
       } else {
@@ -139,8 +136,8 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     std::string suffix = req.matches[1];
     if (suffix.find('/') == std::string::npos) {
       const std::string& interface_name = suffix;
-      if (caller_.context().interfaces.contains(interface_name)) {
-        nlohmann::json j = caller_.context().interfaces.at(interface_name);
+      if (caller_.context().contains_interface(interface_name)) {
+        nlohmann::json j = caller_.context().get_interfaces(interface_name);
         res.set_content(j.dump(2), "application/json");
       } else {
         res.status = 404;
@@ -197,7 +194,8 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       res.set_content(R"({"message": ")" + what + "\"}", "application/json");
     }
   });
-  server_.Get(R"(/dbus/try/(.*))", [this, try_html](const auto& req, auto& res) {
+  server_.Get(R"(/dbus/try/(.*))", [this, try_html](const auto& req,
+                                                    auto& res) {
     std::string service_name, object_path, interface_name, method;
     if (!parse_dbus_request_path(req.matches[1], service_name, object_path,
                                  interface_name, method)) {
@@ -224,8 +222,10 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
       filled_html = replaceAll(filled_html, "$method_name$", method);
       const auto& method_type =
           caller_.context().get<Method>(interface_name, method);
-      filled_html = replaceAll(filled_html, "$request_signature$", method_type.in_signature());
-      filled_html = replaceAll(filled_html, "$response_signature$", method_type.out_signature());
+      filled_html = replaceAll(filled_html, "$request_signature$",
+                               method_type.in_signature());
+      filled_html = replaceAll(filled_html, "$response_signature$",
+                               method_type.out_signature());
       res.set_content(filled_html, "text/html");
     } catch (const std::exception& e) {
       res.status = 500;

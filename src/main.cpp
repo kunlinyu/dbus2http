@@ -109,6 +109,8 @@ int main(int argc, char* argv[]) {
   // std::thread dbus_thread([&conn] { RunExample(conn); });
   // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
+  std::this_thread::sleep_for(std::chrono::seconds(5));
+
   // launch dbus2http proxy
   PLOGI << "Starting dbus2http...";
   dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));

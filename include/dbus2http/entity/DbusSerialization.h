@@ -90,9 +90,10 @@ class Dbus2Html {
 
  public:
   static void set_ws_port(const std::string& port) { ws_port = port; }
+
   static std::string to_html(
-      const std::map<std::string, std::map<std::string, ObjectPath>>&
-          object_paths);
+      const InterfaceContext & context);
+
   static std::string to_html(const ObjectPath& op,
                              const std::string& service_name = "");
 

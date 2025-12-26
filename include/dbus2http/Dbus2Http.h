@@ -20,6 +20,9 @@ class Dbus2Http {
   std::thread service_thread_;
   std::unique_ptr<sdbus::IConnection> conn_;
 
+  std::thread update_thread_;
+  bool stop_ = false;
+
  public:
   Dbus2Http(const std::vector<std::string>& service_prefixes, bool system_bus);
 
@@ -31,6 +34,8 @@ class Dbus2Http {
 
  private:
   bool match_prefix(const std::string& service_name);
+
+  void update();
 };
 
 }  // namespace dbus2http

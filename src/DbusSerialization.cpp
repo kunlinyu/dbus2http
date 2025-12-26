@@ -190,19 +190,20 @@ Flags DbusSerialization::parse_flags(const tinyxml2::XMLElement* parent_node) {
 }
 
 std::string Dbus2Html::ws_port;
-
 std::string Dbus2Html::to_html(
-    const std::map<std::string, std::map<std::string, ObjectPath>>&
-        object_paths) {
+    const InterfaceContext & context) {
   std::ostringstream oss;
-  for (const auto& [service_name, paths] : object_paths) {
+  for (const auto& service_name : context.get_service_names()) {
     oss << "<details>";
     oss << "<summary>" << service_name << "</summary>";
-    for (const auto& [path, op] : paths) oss << to_html(op, service_name);
+    for (const auto& path : context.get_object_path_string(service_name)) {
+      oss << to_html(context.get_object_path(service_name, path), service_name);
+    }
     oss << "</details>";
   }
   return oss.str();
 }
+
 std::string Dbus2Html::to_html(const ObjectPath& op,
                                const std::string& service_name) {
   std::ostringstream oss;

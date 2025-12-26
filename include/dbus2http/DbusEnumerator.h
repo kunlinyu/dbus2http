@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <plog/Log.h>
 #include <sdbus-c++/IConnection.h>
 
 #include <string>
@@ -37,7 +36,6 @@ class DbusEnumerator {
     std::vector<ObjectPath> result;
     result.emplace_back(object);
     context_.add(service_name, object);
-    PLOGI << service_name << "  " << object.path;
     for (const auto& child : object.children_paths) {
       std::string child_path = path + (path == "/" ? "" : "/") + child;
       std::vector<ObjectPath> child_ops =
