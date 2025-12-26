@@ -97,7 +97,17 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
   </body>
 </html>
 )";
-
+  server_.set_default_headers(
+      {{"Access-Control-Allow-Origin", "*"},
+       {"Access-Control-Allow-Methods", "GET, POST, OPTIONS"},
+       {"Access-Control-Allow-Headers",
+        "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token, "
+        "x-user-agent, Authorization"},
+       {"Access-Control-Allow-Credentials", "true"}});
+  server_.Options("/.*",
+                  [](const httplib::Request& req, httplib::Response& res) {
+                    res.set_content("CORS preflight successful", "text/plain");
+                  });
   bool ret = server_.set_mount_point("/", "/opt/cosmos/var/www/dbus2http");
   if (not ret) PLOGW << "set mount point failed";
 
@@ -111,9 +121,8 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     res.set_content(j.dump(), "application/json");
   });
   server_.Get("/dbus/html", [&, header, footer](const auto& req, auto& res) {
-    res.set_content(
-        header + Dbus2Html::to_html(caller_.context()) + footer,
-        "text/html");
+    res.set_content(header + Dbus2Html::to_html(caller_.context()) + footer,
+                    "text/html");
   });
   server_.Get(R"(/dbus/interface/html/(.*))", [&, header, footer](
                                                   const auto& req, auto& res) {
