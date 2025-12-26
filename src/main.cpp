@@ -55,7 +55,11 @@ int main(int argc, char* argv[]) {
   // initialize logging
   static plog::ColorConsoleAppender<dbus2http::FileLineFormatter>
       consoleAppender;
+#ifdef NDEBUG
+  plog::init(plog::info, &consoleAppender);
+#else
   plog::init(plog::debug, &consoleAppender);
+#endif
 
   // parse arguments
   argparse::ArgumentParser program("dbus2http", VERSION_BUILD_NUMBER);
