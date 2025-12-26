@@ -95,7 +95,7 @@ paths:
                 $ref: '#/components/schemas/Interface'
         "404":
           $ref: '#/components/responses/NotFound'
-  /dbus/call/{service}/{object_path}/{interface}/{method}:
+  /dbus/call/{service}/{object_path}/{interface}.{method}:
     post:
       tags:
         - http
