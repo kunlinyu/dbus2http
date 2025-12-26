@@ -3,6 +3,8 @@
 //
 
 #pragma once
+
+#include <plog/Log.h>
 #include <sdbus-c++/IConnection.h>
 #include <sdbus-c++/Types.h>
 
