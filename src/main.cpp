@@ -131,10 +131,10 @@ int main(int argc, char* argv[]) {
   dbus2http.stop();
   PLOGI << "dbus2http stopped.";
 
-  PLOGI << "Stopping D-Bus example service...";
+  // PLOGI << "Stopping D-Bus example service...";
   // conn->leaveEventLoop();
   // if (dbus_thread.joinable()) dbus_thread.join();
-  PLOGI << "D-Bus example service stopped.";
+  // PLOGI << "D-Bus example service stopped.";
 
   return 0;
 }
