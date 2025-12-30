@@ -26,7 +26,8 @@ class Dbus2Http {
  public:
   Dbus2Http(const std::vector<std::string>& service_prefixes, bool system_bus);
 
-  void start(int port, int ws_port);
+  void start(int port, int ws_port,
+             const std::function<void()>& on_failed = nullptr);
 
   void stop();
 

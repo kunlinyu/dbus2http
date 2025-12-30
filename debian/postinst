@@ -18,6 +18,9 @@ chmod 644 /opt/cosmos/lib/systemd/system/${SRV_NAME}.service
 chmod 644 /opt/cosmos/etc/dbus-1/system.d/com.syriusrobotics.${SRV_NAME}.conf
 chmod 750 /opt/cosmos/bin/${SRV_NAME}
 
+mkdir -p /var/log/dbus2http
+chown ${USER_NAME}:${USER_NAME} /var/log/dbus2http
+
 systemctl enable --now /opt/cosmos/lib/systemd/system/${SRV_NAME}.service
 
 sync

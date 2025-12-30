@@ -57,7 +57,7 @@ void run_one_case(httplib::Client& client, const std::string& request,
   REQUIRE(res->body == req_j.dump());
 }
 
-static plog::ConsoleAppender<FileLineFormatter> consoleAppender;
+static plog::ConsoleAppender<FileLineFormatter<false, false>> consoleAppender;
 std::unique_ptr<sdbus::IConnection> conn;
 std::thread dbus_thread;
 std::unique_ptr<Dbus2Http> dbus2http;

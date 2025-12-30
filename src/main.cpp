@@ -1,4 +1,5 @@
 #include <plog/Appenders/ConsoleAppender.h>
+#include <plog/Appenders/RollingFileAppender.h>
 #include <plog/Formatters/TxtFormatter.h>
 #include <plog/Initializers/ConsoleInitializer.h>
 #include <plog/Log.h>
@@ -52,15 +53,6 @@ int main(int argc, char* argv[]) {
   std::signal(SIGINT, handle_sigint);
   std::signal(SIGTERM, handle_sigint);
 
-  // initialize logging
-  static plog::ColorConsoleAppender<dbus2http::FileLineFormatter>
-      consoleAppender;
-#ifdef NDEBUG
-  plog::init(plog::info, &consoleAppender);
-#else
-  plog::init(plog::debug, &consoleAppender);
-#endif
-
   // parse arguments
   argparse::ArgumentParser program("dbus2http", VERSION_BUILD_NUMBER);
   program.add_description("A D-Bus to HTTP proxy server.");
@@ -81,8 +73,25 @@ int main(int argc, char* argv[]) {
   program.add_argument("--service_prefix")
       .nargs(argparse::nargs_pattern::at_least_one)
       .help("Only expose services with the given prefix");
+  program.add_argument("-v", "--verbose")
+      .help("print debug log")
+      .default_value(false)
+      .implicit_value(true);
+
+  static plog::ColorConsoleAppender<dbus2http::FileLineFormatter<false, false>>
+      consoleAppender;
+  static plog::RollingFileAppender<dbus2http::FileLineFormatter<true, true>> fileAppender("/var/log/dbus2http/dbus2http.log", 10000000, 5);
+
   try {
     program.parse_args(argc, argv);
+#ifdef NDEBUG
+    if (program.get<bool>("--verbose"))
+      plog::init(plog::debug, &consoleAppender).addAppender(&fileAppender);
+    else
+      plog::init(plog::info, &consoleAppender).addAppender(&fileAppender);
+#else
+    plog::init(plog::debug, &consoleAppender);
+#endif
   } catch (const std::exception& e) {
     PLOGE << "argument parsing error: " << e.what() << std::endl << program;
     return 1;
@@ -118,15 +127,23 @@ int main(int argc, char* argv[]) {
   // launch dbus2http proxy
   PLOGI << "Starting dbus2http...";
   dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));
-  dbus2http.start(program.get<int>("--port"), program.get<int>("--websocket_port"));
+  dbus2http.start(program.get<int>("--port"),
+                  program.get<int>("--websocket_port"),
+                  [] { g_running.store(false); });
 
   dbus2http::SignalSocket signal_socket(dbus2http.getContext(),
                                         program.get<bool>("--system"),
                                         program.get<int>("--websocket_port"));
   signal_socket.start();
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  PLOGI << "dbus2http started on port " << program.get<int>("--port") << "...";
+
+  int i = 0;
   while (g_running.load()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    if (i++ % 10 == 0)
+      PLOGD << "dbus2http keep running...";
   }
 
   PLOGI << "Stopping signal socket...";

@@ -18,7 +18,7 @@ bool WebService::parse_dbus_request_path(const std::string& path,
                                          std::string& object_path,
                                          std::string& interface_name,
                                          std::string& method) {
-  std::string rem = path;
+  const std::string& rem = path;
   const auto first_slash = rem.find('/');
   if (first_slash == std::string::npos) {
     return false;  // missing components
@@ -44,7 +44,7 @@ bool WebService::parse_dbus_request_path(const std::string& path,
   return true;
 }
 
-WebService::WebService(DbusCaller& caller) : caller_(caller) {
+WebService::WebService(DbusCaller& caller) : caller_(caller), ws_port_(10058) {
   std::string header = R"(
 <!DOCTYPE html>
 <html>
@@ -247,6 +247,14 @@ WebService::WebService(DbusCaller& caller) : caller_(caller) {
     res.status = 200;
     res.set_content(match_rule_html, "text/html");
   });
+  server_.set_pre_routing_handler(
+      [](const httplib::Request& req, httplib::Response& res) {
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+        PLOGD << "[" << std::ctime(&now_c) << "] "
+              << "New request: " << req.method << " " << req.path << std::endl;
+        return httplib::Server::HandlerResponse::Unhandled;
+      });
   server_.set_logger([](const auto& req, const auto& res) {
     // Timestamp
     auto now = std::chrono::system_clock::now();

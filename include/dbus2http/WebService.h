@@ -22,6 +22,7 @@ class WebService {
 
   bool run(int port, int ws_port) {
     ws_port_ = ws_port;
+    PLOGI << "listen port " << port;
     return server_.listen("0.0.0.0", port);
   }
 

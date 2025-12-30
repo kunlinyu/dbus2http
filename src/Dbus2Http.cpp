@@ -12,18 +12,24 @@ Dbus2Http::Dbus2Http(const std::vector<std::string>& service_prefixes,
   conn_ = DbusUtils::createConnection(system_bus_);
 }
 
-void Dbus2Http::start(int port, int ws_port) {
+void Dbus2Http::start(int port, int ws_port,
+                      const std::function<void()>& on_failed) {
   dbus_caller_ = std::make_unique<DbusCaller>(context_, system_bus_);
   service_ = std::make_unique<WebService>(*dbus_caller_);
-  service_thread_ = std::thread([&] { service_->run(port, ws_port); });
+  service_thread_ = std::thread([this, port, ws_port, on_failed] {
+    bool ret = service_->run(port, ws_port);
+    if (not stop_ and not ret) {
+      PLOGE << "start http service failed";
+      if (on_failed) on_failed();
+    }
+  });
   update_thread_ = std::thread([&] {
     while (not stop_) {
       update();
-      for (int i = 0; i < 60 and not stop_; ++i)
+      for (int i = 0; i < 30 and not stop_; ++i)
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   });
-  PLOGI << "dbus2http started on port " << port << "...";
 }
 
 void Dbus2Http::stop() {
