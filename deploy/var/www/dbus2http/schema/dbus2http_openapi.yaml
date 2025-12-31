@@ -139,9 +139,12 @@ paths:
               $ref: '#/components/schemas/MethodCall'
       responses:
         "200":
-          description: Method return value serialized as JSON
+          description: Method return value serialized as JSON or MessagePack
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/MethodReply'
+            application/x-msgpack:
               schema:
                 $ref: '#/components/schemas/MethodReply'
         "400":
