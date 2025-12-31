@@ -75,20 +75,29 @@ WebService::WebService(DbusCaller& caller) : caller_(caller), ws_port_(10058) {
     <p>response signature: $response_signature$</p>
     <div style="display:flex; align-items:center; gap:10px;">
     <textarea id="in" style="width:200px; height:200px;">$request$</textarea>
+    <script src="https://cdn.jsdelivr.net/npm/msgpack-lite@0.1.26/dist/msgpack.min.js"></script>
     <button onclick="
       fetch('$path$',
             { method: 'POST',
               headers: {'Content-Type':'application/json'},
               body: document.getElementById('in').value})
-           .then(r=>r.text())
-           .then(t=>{
-                      try {
-                        const jsonObj = JSON.parse(t);
-                        document.getElementById('out').value = JSON.stringify(jsonObj, null, 2);
-                      } catch (e) {
-                        document.getElementById('out').value = t;
-                      }
-                    })
+           .then(r => {
+              const ct = r.headers.get('Content-Type') || '';
+              if (ct.includes('application/json')) {
+                  return r.json();
+              } else if (ct.includes('application/x-msgpack') || ct.includes('application/msgpack')) {
+                  return r.arrayBuffer().then(buf => msgpack.decode(new Uint8Array(buf)));
+              } else {
+                  return r.text();
+              }
+            })
+           .then(data => {
+              if (typeof data === 'object' && data !== null) {
+                  document.getElementById('out').value = JSON.stringify(data, null, 2);
+              } else {
+                  document.getElementById('out').value = data;
+              }
+           })
       ">
       call
     </button>
@@ -193,9 +202,18 @@ WebService::WebService(DbusCaller& caller) : caller_(caller), ws_port_(10058) {
     PLOGD << "interface_name: " << interface_name;
     PLOGD << "method: " << method;
     try {
-      nlohmann::json response = caller_.Call(service_name, object_path,
-                                             interface_name, method, request);
-      res.set_content(response.dump(), "application/json");
+      const auto response = caller_.Call(service_name, object_path,
+                                         interface_name, method, request);
+      if (Message2Json::contains_binaries(response)) {
+        PLOGD << "response contains binaries, use msgpack";
+        auto msgpack = nlohmann::json::to_msgpack(response);
+        std::string s = std::string(msgpack.begin(), msgpack.end());
+        res.set_content(s, "application/x-msgpack");
+      } else {
+        PLOGD << "response does not contains binary, use json";
+        res.set_content(response.dump(), "application/json");
+      }
+
     } catch (const std::exception& e) {
       res.status = 500;
       std::string what = e.what();

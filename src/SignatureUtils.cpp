@@ -24,6 +24,7 @@ std::vector<std::string> SignatureUtils::split(const std::string& sig) {
       case 't':  // uint64
       case 'd':  // double
       case 's':  // string
+      case 'h':  // unix file descriptor
       case 'v':  // variant
         result.emplace_back(remain_sig.substr(0, 1));
         remain_sig = remain_sig.substr(1);
@@ -46,7 +47,6 @@ std::vector<std::string> SignatureUtils::split(const std::string& sig) {
         break;
 
       case '\0':  // invalid
-      case 'h':   // unix file descriptor
       case 'r':   // general concept of struct
       case 'e':   // general concept of dict
       case 'o':   // name of object

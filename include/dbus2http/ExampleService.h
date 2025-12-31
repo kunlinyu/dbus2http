@@ -66,6 +66,10 @@ class ExampleService
   // dbus-send --print-reply --dest=com.example.ServiceName /path/to/object
   // com.example.InterfaceName.Method3 variant:int32:4
   static bool Method3(const sdbus::Variant& config);
+
+  static sdbus::UnixFd Method4();
+
+  static std::vector<uint8_t> Method5();
 };
 
 }  // namespace dbus2http

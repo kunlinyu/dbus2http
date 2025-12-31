@@ -11,6 +11,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+#include "Config.h"
 #include "DbusUtils.h"
 #include "Json2Message.h"
 #include "Message2Json.h"
@@ -22,11 +23,12 @@ namespace dbus2http {
 class DbusCaller {
   std::unique_ptr<sdbus::IConnection> conn_;
   const InterfaceContext& context_;
+  Config config_;
 
  public:
-  explicit DbusCaller(const InterfaceContext& context, bool system)
-      : context_(context) {
-    conn_ = DbusUtils::createConnection(system);
+  explicit DbusCaller(const InterfaceContext& context, Config config)
+      : context_(context), config_(config) {
+    conn_ = DbusUtils::createConnection(config.system_bus);
   }
 
   const InterfaceContext& context() const { return context_; }
@@ -55,7 +57,8 @@ class DbusCaller {
     PLOGD << "=====call====";
     sdbus::MethodReply method_reply = proxy->callMethod(method_call);
     PLOGD << "=====extract method reply====";
-    return Message2Json::ExtractMessage(method_reply, method_type.out_args());
+    Message2Json message2json(config_);
+    return message2json.ExtractMessage(method_reply, method_type.out_args());
   }
 };
 

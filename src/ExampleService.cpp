@@ -2,6 +2,7 @@
 // Created by yukunlin on 11/22/25.
 //
 #include <dbus2http/ExampleService.h>
+#include <fcntl.h>
 
 #include <iostream>
 
@@ -41,6 +42,16 @@ ExampleService::ExampleService(sdbus::IConnection& connection)
                      .implementedAs([](const sdbus::Variant& config) {
                        return Method3(config);
                      }))
+      .forInterface(kExampleInterfaceName);
+  getObject()
+      .addVTable(sdbus::registerMethod("Method4")
+                     .withOutputParamNames("example_file")
+                     .implementedAs([]() { return Method4(); }))
+      .forInterface(kExampleInterfaceName);
+  getObject()
+      .addVTable(sdbus::registerMethod("Method5")
+                     .withOutputParamNames("binary")
+                     .implementedAs([]() { return Method5(); }))
       .forInterface(kExampleInterfaceName);
   getObject()
       .addVTable(sdbus::registerSignal(kExampleSignalName)
@@ -116,6 +127,39 @@ bool ExampleService::Method3(const sdbus::Variant& config) {
     std::cout << "Unsupported type" << std::endl;
   }
   return true;
+}
+
+sdbus::UnixFd ExampleService::Method4() {
+  std::cout << "Method4:" << std::endl;
+
+  const char* filename = "/tmp/example_service.txt";
+
+  int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  if (fd < 0)
+    throw std::runtime_error("Failed to open file for writing: " +
+                             std::string(strerror(errno)));
+
+  const char* data = "Hello dbus2http!";
+  ssize_t bytes_written = write(fd, data, strlen(data));
+  if (bytes_written < 0) {
+    close(fd);
+    throw std::runtime_error("Failed to write to file: " +
+                             std::string(strerror(errno)));
+  }
+
+  close(fd);
+
+  fd = open(filename, O_RDONLY);
+  if (fd < 0)
+    throw std::runtime_error("Failed to open file for reading: " +
+                             std::string(strerror(errno)));
+
+  return sdbus::UnixFd(fd);
+}
+std::vector<uint8_t> ExampleService::Method5() {
+  std::string msg = "Hello dbus2http!";
+  std::vector<uint8_t> result(msg.begin(), msg.end());
+  return result;
 }
 
 }  // namespace dbus2http

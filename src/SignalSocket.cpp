@@ -8,8 +8,8 @@ namespace dbus2http {
 
 using websocketpp::log::alevel;
 
-SignalSocket::SignalSocket(const InterfaceContext& context, bool system, int port)
-    : context_(context) {
+SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config config)
+    : context_(context), config_(config) {
   ws_server_.init_asio();
   ws_server_.set_open_handler([&](auto conn_hdl) {
     websocketpp::lib::error_code ec;
@@ -52,8 +52,10 @@ SignalSocket::SignalSocket(const InterfaceContext& context, bool system, int por
               return;
             }
 
+            Message2Json message2json(config_);
+
             nlohmann::json j = Message2Json::WrapHeader(
-                msg, Message2Json::ExtractMessage(msg, args));
+                msg, message2json.ExtractMessage(msg, args));
             server::connection_ptr conn =
                 ws_server_.get_con_from_hdl(conn_hdl, ec);
             if (conn) {

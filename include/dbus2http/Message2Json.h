@@ -8,21 +8,37 @@
 
 #include <nlohmann/json.hpp>
 
+#include "Config.h"
 #include "entity/argument.h"
 
 namespace dbus2http {
 
 class Message2Json {
+  Config config_;
+
  public:
-  static nlohmann::json ExtractMessage(
-      sdbus::Message& message, const std::vector<Argument>& args);
+  Message2Json(Config config) : config_(config) {}
+  nlohmann::json ExtractMessage(sdbus::Message& message,
+                                const std::vector<Argument>& args);
 
-  static nlohmann::json ExtractVariant(sdbus::Message& message);
+  nlohmann::json ExtractVariant(sdbus::Message& message);
 
-  static nlohmann::json ExtractMessage(sdbus::Message& message,
-                                       const std::string& sig);
+  nlohmann::json ExtractMessage(sdbus::Message& message,
+                                const std::string& sig);
 
-  static nlohmann::json WrapHeader(sdbus::Message& message, const nlohmann::json& j);
+  static nlohmann::json WrapHeader(sdbus::Message& message,
+                                   const nlohmann::json& j);
+
+  static bool contains_binaries(const nlohmann::json& j) {
+    if (j.is_binary()) return true;
+    if (j.is_array())
+      for (const auto& elem : j)
+        if (contains_binaries(elem)) return true;
+    if (j.is_object())
+      for (auto it = j.begin(); it != j.end(); ++it)
+        if (contains_binaries(it.value())) return true;
+    return false;
+  }
 
  private:
   static nlohmann::json json_null(const char* value) {
@@ -31,9 +47,9 @@ class Message2Json {
   }
 
   template <typename T>
-  static T get_int(sdbus::Message& method_reply) {
+  static T get_int(sdbus::Message& message) {
     T result;
-    method_reply >> result;
+    message >> result;
     return result;
   }
 };

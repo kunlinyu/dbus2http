@@ -145,6 +145,23 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
         message.exitContainer();
         return result;
       }
+      if (sig == "ay" and config_.binary_support) {
+        std::vector<uint8_t> binaries;
+        PLOGD << "enter container y";
+        message.enterContainer("y");
+        while (true) {
+          auto y = get_int<uint8_t>(message);
+          if (message)
+            binaries.push_back(y);
+          else
+            break;
+        }
+        message.clearFlags();
+        PLOGD << "exit container y";
+        message.exitContainer();
+        return nlohmann::json::binary(binaries);
+      }
+      PLOGD << sig << " " << config_.binary_support;
       {  // single charactor array
         nlohmann::json result = nlohmann::json::array();
         std::string element_sig = sig.substr(1);
@@ -162,9 +179,30 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
         message.exitContainer();
         return result;
       }
+    case 'h':  // unix file descriptor
+    {
+      std::vector<uint8_t> binaries;
+      sdbus::UnixFd fd;
+      message >> fd;
+
+      std::vector<uint8_t> buffer(4096);
+      ssize_t bytes_read;
+      while ((bytes_read = read(fd.get(), buffer.data(), buffer.size())) > 0) {
+        binaries.insert(binaries.end(), buffer.begin(),
+                        buffer.begin() + bytes_read);
+        if (binaries.size() > config_.max_file_descriptor_size)
+          throw std::runtime_error("File descriptor data exceeds 10MB limit");
+      }
+      if (bytes_read == -1) {
+        if (errno == EINTR)
+          throw std::runtime_error("read() interrupted by signal");
+        throw std::runtime_error("read() failed: " +
+                                 std::string(strerror(errno)));
+      }
+      return nlohmann::json::binary(binaries);
+    }
 
     case '\0':  // invalid
-    case 'h':   // unix file descriptor
     case 'r':   // general concept of struct
     case 'e':   // general concept of dict
     case 'o':   // name of object

@@ -45,8 +45,10 @@ class SignalSocket {
   std::unique_ptr<sdbus::IConnection> dbus_connection_;
   const InterfaceContext& context_;
 
+  Config config_;
+
  public:
-  SignalSocket(const InterfaceContext& context, bool system, int port);
+  SignalSocket(const InterfaceContext& context, int port, Config config);
 
   void start() {
     ws_server_thread_ = std::thread([&]() { ws_server_.run(); });

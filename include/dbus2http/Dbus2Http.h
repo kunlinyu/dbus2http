@@ -14,7 +14,6 @@ class Dbus2Http {
   InterfaceContext context_;
   std::unique_ptr<WebService> service_;
   std::unique_ptr<DbusCaller> dbus_caller_;
-  bool system_bus_;
   std::set<std::string> service_prefixes_;
 
   std::thread service_thread_;
@@ -23,8 +22,10 @@ class Dbus2Http {
   std::thread update_thread_;
   bool stop_ = false;
 
+  Config config_;
+
  public:
-  Dbus2Http(const std::vector<std::string>& service_prefixes, bool system_bus);
+  Dbus2Http(const std::vector<std::string>& service_prefixes, Config config);
 
   void start(int port, int ws_port,
              const std::function<void()>& on_failed = nullptr);

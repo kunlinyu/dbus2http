@@ -66,13 +66,21 @@ int main(int argc, char* argv[]) {
       .nargs(1)
       .default_value(10058)
       .scan<'i', int>();
-  program.add_argument("--system")
+  program.add_argument("-s", "--system")
       .help("Use system bus")
       .default_value(false)
       .implicit_value(true);
-  program.add_argument("--service_prefix")
+  program.add_argument("-prefix", "--service_prefix")
       .nargs(argparse::nargs_pattern::at_least_one)
       .help("Only expose services with the given prefix");
+  program.add_argument("-e", "--example")
+      .help("Enable example dbus service")
+      .default_value(false)
+      .implicit_value(true);
+  program.add_argument("-b", "--binary")
+      .help("Enable binary support to return \"ay\" as messagepack")
+      .default_value(false)
+      .implicit_value(true);
   program.add_argument("-v", "--verbose")
       .help("print debug log")
       .default_value(false)
@@ -80,7 +88,8 @@ int main(int argc, char* argv[]) {
 
   static plog::ColorConsoleAppender<dbus2http::FileLineFormatter<false, false>>
       consoleAppender;
-  static plog::RollingFileAppender<dbus2http::FileLineFormatter<true, true>> fileAppender("/var/log/dbus2http/dbus2http.log", 10000000, 5);
+  static plog::RollingFileAppender<dbus2http::FileLineFormatter<true, true>>
+      fileAppender("/var/log/dbus2http/dbus2http.log", 10000000, 5);
 
   try {
     program.parse_args(argc, argv);
@@ -110,30 +119,42 @@ int main(int argc, char* argv[]) {
 #endif
   auto service_prefix =
       program.get<std::vector<std::string>>("--service_prefix");
+  service_prefix.emplace_back("org.freedesktop.DBus");
+  service_prefix.emplace_back(dbus2http::kExampleServiceName);
   for (const auto& prefix : service_prefix) PLOGI << "prefix: " << prefix;
   PLOGI << "http port: " << program.get<int>("--port");
   PLOGI << "websocket port: " << program.get<int>("--websocket_port");
   PLOGI << "system bus: " << (program.get<bool>("--system") ? "true" : "false");
+  PLOGI << "binary support: "
+         << (program.get<bool>("--binary") ? "true" : "false");
   PLOGI << "================================";
 
   // launch example D-Bus service
-  // const auto conn = dbus2http::DbusUtils::createConnection(
-  //     dbus2http::kExampleServiceName, program.get<bool>("--system"));
-  // std::thread dbus_thread([&conn] { RunExample(conn); });
-  // std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::unique_ptr<sdbus::IConnection> conn;
+  std::thread dbus_thread;
+  if (program.get<bool>("--example")) {
+    PLOGI << "Starting D-Bus example service...";
+    conn = dbus2http::DbusUtils::createConnection(
+        dbus2http::kExampleServiceName, program.get<bool>("--system"));
+    dbus_thread = std::thread([&conn] { RunExample(conn); });
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 
   // launch dbus2http proxy
   PLOGI << "Starting dbus2http...";
-  dbus2http::Dbus2Http dbus2http(service_prefix, program.get<bool>("--system"));
+
+  dbus2http::Config config;
+  config.system_bus = program.get<bool>("--system");
+  config.binary_support = program.get<bool>("--binary");
+  config.max_file_descriptor_size = 10 * 1024 * 1024;  // 10MB
+
+  dbus2http::Dbus2Http dbus2http(service_prefix, config);
   dbus2http.start(program.get<int>("--port"),
                   program.get<int>("--websocket_port"),
                   [] { g_running.store(false); });
 
-  dbus2http::SignalSocket signal_socket(dbus2http.getContext(),
-                                        program.get<bool>("--system"),
-                                        program.get<int>("--websocket_port"));
+  dbus2http::SignalSocket signal_socket(
+      dbus2http.getContext(), program.get<int>("--websocket_port"), config);
   signal_socket.start();
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -142,8 +163,7 @@ int main(int argc, char* argv[]) {
   int i = 0;
   while (g_running.load()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    if (i++ % 10 == 0)
-      PLOGD << "dbus2http keep running...";
+    if (i++ % 60 == 0) PLOGD << "dbus2http keep running...";
   }
 
   PLOGI << "Stopping signal socket...";
@@ -154,10 +174,12 @@ int main(int argc, char* argv[]) {
   dbus2http.stop();
   PLOGI << "dbus2http stopped.";
 
-  // PLOGI << "Stopping D-Bus example service...";
-  // conn->leaveEventLoop();
-  // if (dbus_thread.joinable()) dbus_thread.join();
-  // PLOGI << "D-Bus example service stopped.";
+  if (program.get<bool>("--example")) {
+    PLOGI << "Stopping D-Bus example service...";
+    conn->leaveEventLoop();
+    if (dbus_thread.joinable()) dbus_thread.join();
+    PLOGI << "D-Bus example service stopped.";
+  }
 
   return 0;
 }

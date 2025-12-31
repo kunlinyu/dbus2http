@@ -6,15 +6,15 @@
 namespace dbus2http {
 
 Dbus2Http::Dbus2Http(const std::vector<std::string>& service_prefixes,
-                     bool system)
-    : system_bus_(system) {
+                     Config config)
+    : config_(config) {
   service_prefixes_.insert(service_prefixes.begin(), service_prefixes.end());
-  conn_ = DbusUtils::createConnection(system_bus_);
+  conn_ = DbusUtils::createConnection(config_.system_bus);
 }
 
 void Dbus2Http::start(int port, int ws_port,
                       const std::function<void()>& on_failed) {
-  dbus_caller_ = std::make_unique<DbusCaller>(context_, system_bus_);
+  dbus_caller_ = std::make_unique<DbusCaller>(context_, config_);
   service_ = std::make_unique<WebService>(*dbus_caller_);
   service_thread_ = std::thread([this, port, ws_port, on_failed] {
     bool ret = service_->run(port, ws_port);
@@ -45,7 +45,7 @@ void Dbus2Http::stop() {
 
 void Dbus2Http::update() {
   DbusEnumerator dbusEnumerator(context_);
-  auto service_names = DbusEnumerator::list_services(system_bus_);
+  auto service_names = DbusEnumerator::list_services(config_.system_bus);
   for (const auto& service_name : service_names) {
     if (not match_prefix(service_name)) continue;
     if (context_.contains_service(service_name)) continue;
