@@ -51,15 +51,26 @@ class SignalSocket {
   SignalSocket(const InterfaceContext& context, int port, Config config);
 
   void start() {
-    ws_server_thread_ = std::thread([&]() { ws_server_.run(); });
+    ws_server_thread_ = std::thread([this]() { ws_server_.run(); });
     dbus_session_thread_ =
         std::thread([&]() { dbus_connection_->enterEventLoop(); });
   }
 
   void stop() {
     ws_server_.stop_listening();
+
+    for (const auto& [conn_hdl, slot] : conn2slot_) {
+      websocketpp::lib::error_code ec;
+      ws_server_.close(conn_hdl, websocketpp::close::status::going_away,
+                       "server stopping", ec);
+      if (ec)
+        PLOGE << "Error closing connection: " << ec.message();
+    }
+    conn2slot_.clear();
     ws_server_.stop();
+
     if (ws_server_thread_.joinable()) ws_server_thread_.join();
+
     dbus_connection_->leaveEventLoop();
     if (dbus_session_thread_.joinable()) dbus_session_thread_.join();
   }

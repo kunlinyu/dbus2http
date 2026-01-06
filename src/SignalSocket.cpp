@@ -8,12 +8,15 @@ namespace dbus2http {
 
 using websocketpp::log::alevel;
 
-SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config config)
+SignalSocket::SignalSocket(const InterfaceContext& context, int port,
+                           Config config)
     : context_(context), config_(config) {
   ws_server_.init_asio();
+  ws_server_.set_reuse_addr(true);
   ws_server_.set_open_handler([&](auto conn_hdl) {
     websocketpp::lib::error_code ec;
-    server::connection_ptr ws_conn = ws_server_.get_con_from_hdl(conn_hdl, ec);
+    const server::connection_ptr ws_conn =
+        ws_server_.get_con_from_hdl(conn_hdl, ec);
     if (ec) {
       PLOGE << "get_con_from_hdl error: " << ec.message();
       return;
@@ -32,7 +35,6 @@ SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config con
     match = replaceAll(match, "%20", " ");
     match = replaceAll(match, "%27", "'");
     match = replaceAll(match, "%2C", ",");
-    match = replaceAll(match, "%3D", "=");
     match = replaceAll(match, "%2F", "/");
     match = replaceAll(match, "%3A", ":");
     match = replaceAll(match, "%3D", "=");
@@ -40,7 +42,7 @@ SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config con
     try {
       conn2slot_[conn_hdl] = dbus_connection_->addMatch(
           match,
-          [&, conn_hdl](sdbus::Message msg) {
+          [this, &conn_hdl](sdbus::Message msg) {
             PLOGD << "get message from service: " << msg.getInterfaceName()
                   << " member: " << msg.getMemberName();
             std::vector<Argument> args;
@@ -59,6 +61,7 @@ SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config con
 
             nlohmann::json j = Message2Json::WrapHeader(
                 msg, message2json.ExtractMessage(msg, args));
+            websocketpp::lib::error_code ec;
             server::connection_ptr conn =
                 ws_server_.get_con_from_hdl(conn_hdl, ec);
             if (conn) {
@@ -71,6 +74,8 @@ SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config con
           },
           sdbus::return_slot_t());
     } catch (const std::exception& e) {
+      ws_server_.close(conn_hdl, websocketpp::close::status::policy_violation,
+                       "add match failed: " + std::string(e.what()));
       PLOGE << "add match failed: " << e.what();
     }
   });
@@ -102,7 +107,7 @@ SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config con
   ws_server_.set_access_channels(alevel::all);
   ws_server_.set_error_channels(alevel::all);
 #endif
-  dbus_connection_ = DbusUtils::createConnection(system);
+  dbus_connection_ = DbusUtils::createConnection(config.system_bus);
 }
 
 void SignalSocket::on_message(server* s, websocketpp::connection_hdl conn_hdl,

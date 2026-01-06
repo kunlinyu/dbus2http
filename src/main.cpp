@@ -111,6 +111,7 @@ int main(int argc, char* argv[]) {
   PLOGI << "revision: " << REVISION;
   PLOGI << "build time: " << std::string(__DATE__ " " __TIME__);
   PLOGI << "toolchain: " << std::string(TOOLCHAIN);
+  PLOGI << "verbose: " << (program.get<bool>("--verbose") ? "true" : "false");
 
 #ifdef NDEBUG
   PLOGI << "build mode: release";
