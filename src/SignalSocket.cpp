@@ -34,7 +34,9 @@ SignalSocket::SignalSocket(const InterfaceContext& context, int port, Config con
     match = replaceAll(match, "%2C", ",");
     match = replaceAll(match, "%3D", "=");
     match = replaceAll(match, "%2F", "/");
-    PLOGD << "match : " << match;
+    match = replaceAll(match, "%3A", ":");
+    match = replaceAll(match, "%3D", "=");
+    PLOGI << "match : " << match;
     try {
       conn2slot_[conn_hdl] = dbus_connection_->addMatch(
           match,
