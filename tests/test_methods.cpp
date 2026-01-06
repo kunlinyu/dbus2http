@@ -81,7 +81,7 @@ TEST_CASE("call methods", "[i][i]") {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     std::vector<std::string> service_prefixes = {"com.test"};
-    dbus2http = std::make_unique<Dbus2Http>(service_prefixes, false);
+    dbus2http = std::make_unique<Dbus2Http>(service_prefixes, Config());
     try {
       dbus2http->start(10059, 10058);
     } catch (const std::exception& e) {
