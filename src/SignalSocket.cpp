@@ -42,7 +42,7 @@ SignalSocket::SignalSocket(const InterfaceContext& context, int port,
     try {
       conn2slot_[conn_hdl] = dbus_connection_->addMatch(
           match,
-          [this, &conn_hdl](sdbus::Message msg) {
+          [&, conn_hdl](sdbus::Message msg) {
             PLOGD << "get message from service: " << msg.getInterfaceName()
                   << " member: " << msg.getMemberName();
             std::vector<Argument> args;
@@ -115,4 +115,5 @@ void SignalSocket::on_message(server* s, websocketpp::connection_hdl conn_hdl,
   std::string payload = msg->get_payload();
   s->send(conn_hdl, payload, msg->get_opcode());
 }
+
 }  // namespace dbus2http
