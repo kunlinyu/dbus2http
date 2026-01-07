@@ -218,7 +218,9 @@ WebService::WebService(DbusCaller& caller) : caller_(caller), ws_port_(10058) {
       res.status = 500;
       std::string what = e.what();
       PLOGE << "exception: " << what;
-      res.set_content(R"({"message": ")" + what + "\"}", "application/json");
+      nlohmann::json j;
+      j["message"] = what;
+      res.set_content(j.dump(), "application/json");
     }
   });
   server_.Get(R"(/dbus/try/(.*))", [this, try_html](const auto& req,

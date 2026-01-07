@@ -59,26 +59,26 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
       message >> b;
       return b;
     case 'y':  // byte
-      return get_int<uint8_t>(message);
+      return read<uint8_t>(message);
     case 'n':  // int16
-      return get_int<int16_t>(message);
+      return read<int16_t>(message);
     case 'q':  // uint16
-      return get_int<uint16_t>(message);
+      return read<uint16_t>(message);
     case 'i':  // int32
       PLOGD << "extract int32";
-      return get_int<int32_t>(message);
+      return read<int32_t>(message);
     case 'u':  // uint32
       PLOGD << "extract uint32";
-      return get_int<uint32_t>(message);
+      return read<uint32_t>(message);
     case 'x':  // int64
-      return get_int<int64_t>(message);
+      return read<int64_t>(message);
     case 't':  // uint64
-      return get_int<uint64_t>(message);
+      return read<uint64_t>(message);
     case 'd':  // double
-      return get_int<double>(message);
+      return read<double>(message);
     case 's':  // string
       PLOGD << "extract string";
-      return get_int<std::string>(message);
+      return read<std::string>(message);
     case 'v':  // variant
       return ExtractVariant(message);
     case '(':  // struct
@@ -150,7 +150,7 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
         PLOGD << "enter container y";
         message.enterContainer("y");
         while (true) {
-          auto y = get_int<uint8_t>(message);
+          auto y = read<uint8_t>(message);
           if (message)
             binaries.push_back(y);
           else
@@ -187,7 +187,7 @@ nlohmann::json Message2Json::ExtractMessage(sdbus::Message& message,
 
       std::vector<uint8_t> buffer(4096);
       ssize_t bytes_read;
-      while ((bytes_read = read(fd.get(), buffer.data(), buffer.size())) > 0) {
+      while ((bytes_read = ::read(fd.get(), buffer.data(), buffer.size())) > 0) {
         binaries.insert(binaries.end(), buffer.begin(),
                         buffer.begin() + bytes_read);
         if (binaries.size() > config_.max_file_descriptor_size)

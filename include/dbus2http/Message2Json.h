@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <plog/Log.h>
 #include <sdbus-c++/sdbus-c++.h>
 
 #include <nlohmann/json.hpp>
@@ -47,9 +48,18 @@ class Message2Json {
   }
 
   template <typename T>
-  static T get_int(sdbus::Message& message) {
+  static T read(sdbus::Message& message) {
     T result;
-    message >> result;
+    try {
+      message >> result;
+    } catch (const std::exception& e) {
+      std::stringstream ss;
+      ss << "Failed to get type from message. peek type: \'"
+         << message.peekType().first << "\' \"" << message.peekType().second
+         << "\" what: " << e.what();
+      PLOGE << ss.str();
+      throw std::runtime_error(ss.str());
+    }
     return result;
   }
 };
